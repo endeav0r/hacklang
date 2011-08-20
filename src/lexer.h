@@ -25,6 +25,7 @@
 #define TOK_BRACK_O 18
 #define TOK_BRACK_C 19
 #define TOK_FUNC    20
+#define TOK_RETURN  21
 
 struct token_s {
 	char * text;

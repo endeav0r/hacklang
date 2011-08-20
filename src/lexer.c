@@ -5,7 +5,7 @@ struct token_s * token_create (char * text, int text_len, int type)
 {
 	struct token_s * token;
 	
-	token = (struct token_s *) malloc(sizeof(struct token_s()));
+	token = (struct token_s *) malloc(sizeof(struct token_s));
 	token->text = (char *) malloc(text_len + 1);
 	memcpy(token->text, text, text_len);
 	token->text[text_len] = 0;
@@ -63,14 +63,28 @@ int is_numeric (char c)
 
 // returns -1 on no match
 int lexer_keyword_match (char * text, int len) {
-	if (strncmp("if", text, len) == 0)
-		return TOK_IF;
-	else if (strncmp("end", text, len) == 0)
-		return TOK_END;
-	else if (strncmp("while", text, len) == 0)
-		return TOK_WHILE;
-	else if (strncmp("func", text, len) == 0)
-		return TOK_FUNC;
+    switch (len) {
+    case 2 :
+        if (strcmp("if", text) == 0)
+            return TOK_IF;
+        break;
+    case 3 :
+        if (strncmp("end", text, strlen("end")) == 0)
+            return TOK_END;
+        break;
+    case 4 :
+        if (strncmp("func", text, len) == 0)
+            return TOK_FUNC;
+        break;
+    case 5 :
+        if (strncmp("while", text, strlen("while")) == 0)
+            return TOK_WHILE;
+        break;
+    case 6 :
+        if (strncmp("return", text, len) == 0)
+            return TOK_RETURN;
+        break;
+    }
 	return -1;
 }
 
@@ -133,11 +147,11 @@ struct token_s * lexer_lex (char * text)
 			text_i++;
 			continue;
 		case '(' :
-			lexer_token_append(&lexer, token_create(">", 1, TOK_PAREN_O));
+			lexer_token_append(&lexer, token_create("(", 1, TOK_PAREN_O));
 			text_i++;
 			continue;
 		case ')' :
-			lexer_token_append(&lexer, token_create(">", 1, TOK_PAREN_C));
+			lexer_token_append(&lexer, token_create(")", 1, TOK_PAREN_C));
 			text_i++;
 			continue;
 		case ',' :

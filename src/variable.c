@@ -22,7 +22,22 @@ struct var_s * var_create (int type, char * value) {
 
 void var_destroy (struct var_s * var)
 {
+    if (var->string != NULL) {
+        free(var->string);
+    }
 	free(var);
+}
+
+
+struct var_s * var_create_func (struct ast_s * ast) {
+    struct var_s * var;
+    
+    var = (struct var_s *) malloc(sizeof(struct var_s));
+    var->type = TYPE_FUNC;
+    var->ast = ast;
+    var->string = NULL;
+    
+    return var;
 }
 
 
@@ -30,7 +45,7 @@ struct var_s * var_add (struct var_s * a, struct var_s * b)
 {
 	struct var_s * r;
 	
-	r = (struct var_s *) malloc(sizeof(struct var_s));
+	r = var_create(TYPE_NULL, NULL);
 	if (a->type == b->type) {
 		switch (a->type) {
 		case TYPE_INT :
@@ -55,7 +70,7 @@ struct var_s * var_sub (struct var_s * a, struct var_s * b)
 {
 	struct var_s * r;
 	
-	r = (struct var_s *) malloc(sizeof(struct var_s));
+	r = var_create(TYPE_NULL, NULL);
 	if (a->type == b->type) {
 		switch (a->type) {
 		case TYPE_INT :
@@ -78,10 +93,16 @@ struct var_s * var_sub (struct var_s * a, struct var_s * b)
 
 void var_set (struct var_s * a, struct var_s * b)
 {
-	if (b->type == TYPE_INT) {
+    switch (b->type) {
+    case TYPE_INT :
 		a->type = TYPE_INT;
 		a->i = b->i;
-	}
+        break;
+    case TYPE_FUNC :
+        a->type = TYPE_FUNC;
+        a->ast = b->ast;
+        break;
+    }
 }
 
 
@@ -96,6 +117,9 @@ struct var_s * var_copy (struct var_s * src)
 	case TYPE_NULL :
 		r = var_create(TYPE_NULL, NULL);
 		break;
+    case TYPE_FUNC :
+        r = var_create_func(src->ast);
+        break;
 	default :
 		fprintf(stderr, "var_copy on invalid type %d\n", src->type);
 		exit(-1);
@@ -119,9 +143,13 @@ int var_cmp (struct var_s * a, struct var_s * b)
 		else if (a->i > b->i)
 			return 1;
 		return 0;
+    case TYPE_FUNC :
+        if (a->ast == b->ast)
+            return 0;
+        return 1;
 	}
 	
-	fprintf(stderr, "tried to compare invalid type %d\n", a->type);
+	fprintf(stderr, "tried to compare invalid type %d %d\n", a->type, b->type);
 	exit(-1);
 	return 0;
 }
@@ -131,6 +159,7 @@ char * var_to_string (struct var_s * var)
 {
 	if (var->string != NULL)
 		free(var->string);
+    var->string = NULL;
 		
 	switch (var->type) {
 	case TYPE_INT :
@@ -138,9 +167,13 @@ char * var_to_string (struct var_s * var)
 		snprintf(var->string, 24, "%d", var->i);
 		break;
 	case TYPE_NULL :
-		var->string = (char *) malloc(5);
-		snprintf(var->string, 5, "NULL");
+		var->string = (char *) malloc(8);
+		snprintf(var->string, 8, "<NULL>");
 		break;
+    case TYPE_FUNC :
+        var->string = (char *) malloc(64);
+        snprintf(var->string, 64, "<function at %p>", var->ast);
+        break;
 	default :
 		fprintf(stderr, "var_to_string on invalid type %d\n", var->type);
 		exit(-1);

@@ -1,9 +1,10 @@
-gcc -Wall -c -O2 src/lexer.c -o src/lexer.o
-gcc -Wall -c -O2 src/parser.c -o src/parser.o
-gcc -Wall -c -O2 src/ast.c -o src/ast.o
-gcc -Wall -c -O2 src/symboltable.c -o src/symboltable.o
-gcc -Wall -c -O2 src/variable.c -o src/variable.o
-gcc -Wall -c -O2 src/interpreter.c -o src/interpreter.o
-gcc -Wall -c -O2 src/hl.c -o src/hl.o
+gcc -Wall -c -O2 -g src/lexer.c -o o/lexer.o
+gcc -Wall -c -O2 -g src/parser.c -o o/parser.o
+gcc -Wall -c -O2 -g src/ast.c -o o/ast.o
+gcc -Wall -c -O2 -g src/symboltable.c -o o/symboltable.o
+gcc -Wall -c -O2 -g src/variable.c -o o/variable.o
+gcc -Wall -c -O2 -g src/interpreter.c -o o/interpreter.o
+gcc -Wall -c -O2 -g src/hl.c -o o/hl.o
+gcc -Wall -c -O2 -g src/debug.c -o o/debug.o
 
-gcc -Wall -O2 src/lexer.o src/parser.o src/ast.o src/variable.o src/interpreter.o src/symboltable.o src/hl.o -o hl
+gcc -Wall -g -O2 o/lexer.o o/parser.o o/ast.o o/variable.o o/interpreter.o o/symboltable.o o/hl.o o/debug.o -o hl
