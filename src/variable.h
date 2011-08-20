@@ -11,12 +11,12 @@
 #define TYPE_FUNC 3
 
 struct var_s {
-	int type;
-	union {
-		int i;
+    int type;
+    union {
+        int i;
         struct ast_s * ast;
-	};
-	char * string;
+    };
+    char * string;
 };
 
 struct var_s * var_create  (int type, char * value);

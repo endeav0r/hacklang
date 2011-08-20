@@ -56,51 +56,51 @@ int LOOKAHEAD [PARSER_RULES][PARSER_LOOKAHEAD_MAXLEN] = {
 
 void parser_stack_push (struct parser_s * parser, struct ast_s * ast)
 {
-	struct parser_stack_s * stack;
-	
-	stack = (struct parser_stack_s *) malloc(sizeof(struct parser_stack_s));
-	stack->ast = ast;
-	if (parser->bottom == NULL) {
-		stack->prev = NULL;
-		parser->bottom = stack;
-		parser->top = stack;
-	}
-	else {
-		stack->prev = parser->top;
-		parser->top = stack;
-	}
-	parser->stack_size++;
+    struct parser_stack_s * stack;
+    
+    stack = (struct parser_stack_s *) malloc(sizeof(struct parser_stack_s));
+    stack->ast = ast;
+    if (parser->bottom == NULL) {
+        stack->prev = NULL;
+        parser->bottom = stack;
+        parser->top = stack;
+    }
+    else {
+        stack->prev = parser->top;
+        parser->top = stack;
+    }
+    parser->stack_size++;
 }
 
 
 void parser_stack_pop (struct parser_s * parser, int depth)
 {
-	struct parser_stack_s * stack;
-	
-	while (depth--) {
-		stack = parser->top;
-		parser->top = stack->prev;
-		if (parser->top == NULL)
-			parser->bottom = NULL;
-		free(stack);
-		parser->stack_size--;
-	}
+    struct parser_stack_s * stack;
+    
+    while (depth--) {
+        stack = parser->top;
+        parser->top = stack->prev;
+        if (parser->top == NULL)
+            parser->bottom = NULL;
+        free(stack);
+        parser->stack_size--;
+    }
 }
 
 
 struct ast_s * parser_stack_peek (struct parser_s * parser, int depth)
 {
-	struct parser_stack_s * stack;
-	
-	stack = parser->top;
-	while ((stack != NULL) && (depth > 0)) {
-		stack = stack->prev;
-		depth--;
-	}
-	
-	if (stack == NULL)
-		return NULL;
-	return stack->ast;
+    struct parser_stack_s * stack;
+    
+    stack = parser->top;
+    while ((stack != NULL) && (depth > 0)) {
+        stack = stack->prev;
+        depth--;
+    }
+    
+    if (stack == NULL)
+        return NULL;
+    return stack->ast;
 }
 
 
@@ -108,52 +108,52 @@ struct ast_s * parser_stack_peek (struct parser_s * parser, int depth)
 // checks lookaheads
 int parser_rule_match (struct parser_s * parser, int rule, int lookahead)
 {
-	struct ast_s * ast;
-	int depth;
-	int i;
-	int match;
-	
-	match = 1;
-	for (depth = 0; depth < PARSER_RULES_MAXLEN; depth++) {
-		if (MATCH[rule][depth] == -1) {
-			break;
-		}
-		ast = parser_stack_peek(parser, depth);
-		if (ast == NULL) {
-			match = 0;
-			break;
-		}
-		if (MATCH[rule][depth] != ast->type)
-			match = 0;
-	}
-	
-	if (match) {
-		for (i = 0; i < PARSER_LOOKAHEAD_MAXLEN; i++) {
-			if (LOOKAHEAD[rule][i] == -1)
-				break;
-			if (LOOKAHEAD[rule][i] == lookahead) {
-				match = 0;
-				break;
-			}
-		}
-	}	
-	
-	return match;
+    struct ast_s * ast;
+    int depth;
+    int i;
+    int match;
+    
+    match = 1;
+    for (depth = 0; depth < PARSER_RULES_MAXLEN; depth++) {
+        if (MATCH[rule][depth] == -1) {
+            break;
+        }
+        ast = parser_stack_peek(parser, depth);
+        if (ast == NULL) {
+            match = 0;
+            break;
+        }
+        if (MATCH[rule][depth] != ast->type)
+            match = 0;
+    }
+    
+    if (match) {
+        for (i = 0; i < PARSER_LOOKAHEAD_MAXLEN; i++) {
+            if (LOOKAHEAD[rule][i] == -1)
+                break;
+            if (LOOKAHEAD[rule][i] == lookahead) {
+                match = 0;
+                break;
+            }
+        }
+    }    
+    
+    return match;
 }
 
 
 // returns rule matched, or -1 for no rules matched
 int parser_match (struct parser_s * parser, int lookahead)
 {
-	int rule_i;
-	
-	for (rule_i = 0; rule_i < PARSER_RULES; rule_i++) {
-		if (parser_rule_match(parser, rule_i, lookahead)) {
-			return rule_i;
-		}
-	}
-	
-	return -1;
+    int rule_i;
+    
+    for (rule_i = 0; rule_i < PARSER_RULES; rule_i++) {
+        if (parser_rule_match(parser, rule_i, lookahead)) {
+            return rule_i;
+        }
+    }
+    
+    return -1;
 }
 
 
@@ -161,10 +161,10 @@ int parser_match (struct parser_s * parser, int lookahead)
 // 0 on no reduction
 int parser_reduce (struct parser_s * parser, int lookahead)
 {
-	struct ast_s * ast;
-	int rule;
-	
-	rule = parser_match(parser, lookahead);
+    struct ast_s * ast;
+    int rule;
+    
+    rule = parser_match(parser, lookahead);
     
     // SPECIAL CASES
     switch (rule) {
@@ -179,136 +179,136 @@ int parser_reduce (struct parser_s * parser, int lookahead)
         break;
     }
     
-	if (rule == -1)
-		return 0;
-	
-	printf("%d\n", rule);fflush(stdout);
-	
-	switch (rule) {
-	case RULE_EXPR_NUM :
-		ast = parser_stack_peek(parser, 0);
-		ast->type = TOK_EXPR;
-		ast->subtype = TOK_NUM;
+    if (rule == -1)
+        return 0;
+    
+    printf("%d\n", rule);fflush(stdout);
+    
+    switch (rule) {
+    case RULE_EXPR_NUM :
+        ast = parser_stack_peek(parser, 0);
+        ast->type = TOK_EXPR;
+        ast->subtype = TOK_NUM;
         break;
-	case RULE_EXPR_SYM :
-		ast = parser_stack_peek(parser, 0);
-		ast->type = TOK_EXPR;
-		ast->subtype = TOK_SYM;
-		break;
-	case RULE_EXPR_EXPR_ADD_EXPR :
-	case RULE_EXPR_EXPR_MINUS_EXPR :
-	case RULE_EXPR_EXPR_STAR_EXPR :
-	case RULE_EXPR_EXPR_DIV_EXPR :
-		ast = parser_stack_peek(parser, 1);
-		ast->subtype = ast->type;
-		ast->type = TOK_EXPR;
-		ast->right = parser_stack_peek(parser, 0);
-		ast->left = parser_stack_peek(parser, 2);
-		parser_stack_pop(parser, 3);
-		parser_stack_push(parser, ast);
-		break;
-	case RULE_STMT_EXPR_ASSIGN_EXPR :
-		ast = ast_create(TOK_STMT, NULL);
-		ast->subtype = TOK_ASSIGN;
-		ast->right = parser_stack_peek(parser, 0);
-		ast->left = parser_stack_peek(parser, 2);
-		ast_destroy(parser_stack_peek(parser, 1));
-		parser_stack_pop(parser, 3);
-		parser_stack_push(parser, ast);
-		break;
-	case RULE_STMT_TERM_STMT :
-	case RULE_COND_TERM_COND :
-	case RULE_PARAMLIST_TERM_PARAMLIST :
-		ast_destroy(parser_stack_peek(parser, 0));
-		parser_stack_pop(parser, 1);
-		break;
-	case RULE_STMT_STMT_STMT :
-		ast = parser_stack_peek(parser, 1);
-		while (ast->next != NULL)
-			ast = ast->next;
-		ast->next = parser_stack_peek(parser, 0);
-		parser_stack_pop(parser, 1);
-		break;
-	case RULE_COND_EXPR_LESS_EXPR :
-	case RULE_COND_EXPR_GREATER_EXPR :
-		ast = parser_stack_peek(parser, 1);
-		ast->subtype = ast->type;
-		ast->type = TOK_COND;
-		ast->left = parser_stack_peek(parser, 2);
-		ast->right = parser_stack_peek(parser, 0);
-		parser_stack_pop(parser, 3);
-		parser_stack_push(parser, ast);
-		break;
-	case RULE_STMT_END_STMT_COND_IF :
-	case RULE_STMT_END_STMT_COND_WHILE :
-		ast = parser_stack_peek(parser, 3);
-		if (ast->type == TOK_IF)
-			ast->subtype = TOK_BRANCH;
-		else if (ast->type == TOK_WHILE)
-			ast->subtype = TOK_LOOP;
-        ast->type = TOK_STMT;
-		ast->condition = parser_stack_peek(parser, 2);
-		ast->block = parser_stack_peek(parser, 1);
-		ast_destroy(parser_stack_peek(parser, 0));
-		parser_stack_pop(parser, 4);
-		parser_stack_push(parser, ast);
-		break;
-	case RULE_EXPR_PARENC_EXPR_PARENO :
-		ast = parser_stack_peek(parser, 1);
-		ast_destroy(parser_stack_peek(parser, 0));
-		ast_destroy(parser_stack_peek(parser, 2));
-		parser_stack_pop(parser, 3);
-		parser_stack_push(parser, ast);
+    case RULE_EXPR_SYM :
+        ast = parser_stack_peek(parser, 0);
+        ast->type = TOK_EXPR;
+        ast->subtype = TOK_SYM;
         break;
-	case RULE_PARAMLIST_PARENC_PARAM_PARENO :
-		ast = parser_stack_peek(parser, 1);
-        ast->type = TOK_PARAMLIST;
-		ast_destroy(parser_stack_peek(parser, 0));
-		ast_destroy(parser_stack_peek(parser, 2));
-		parser_stack_pop(parser, 3);
-		parser_stack_push(parser, ast);
-		break;
-	case RULE_PARAM_PARENC_EXPR_PARENO_SYM :
-		ast = parser_stack_peek(parser, 1);
-		ast->type = TOK_PARAM;
-		ast_destroy(parser_stack_peek(parser, 0));
-		ast_destroy(parser_stack_peek(parser, 2));
-		parser_stack_pop(parser, 3);
-		parser_stack_push(parser, ast);
-		break;
-	case RULE_PARAM_EXPR_COMMA_EXPR :
-	case RULE_PARAM_EXPR_COMMA_PARAM :
-		ast = parser_stack_peek(parser, 1);
-		ast = parser_stack_peek(parser, 2);
-		ast->type = TOK_PARAM;
+    case RULE_EXPR_EXPR_ADD_EXPR :
+    case RULE_EXPR_EXPR_MINUS_EXPR :
+    case RULE_EXPR_EXPR_STAR_EXPR :
+    case RULE_EXPR_EXPR_DIV_EXPR :
+        ast = parser_stack_peek(parser, 1);
+        ast->subtype = ast->type;
+        ast->type = TOK_EXPR;
+        ast->right = parser_stack_peek(parser, 0);
+        ast->left = parser_stack_peek(parser, 2);
+        parser_stack_pop(parser, 3);
+        parser_stack_push(parser, ast);
+        break;
+    case RULE_STMT_EXPR_ASSIGN_EXPR :
+        ast = ast_create(TOK_STMT, NULL);
+        ast->subtype = TOK_ASSIGN;
+        ast->right = parser_stack_peek(parser, 0);
+        ast->left = parser_stack_peek(parser, 2);
+        ast_destroy(parser_stack_peek(parser, 1));
+        parser_stack_pop(parser, 3);
+        parser_stack_push(parser, ast);
+        break;
+    case RULE_STMT_TERM_STMT :
+    case RULE_COND_TERM_COND :
+    case RULE_PARAMLIST_TERM_PARAMLIST :
+        ast_destroy(parser_stack_peek(parser, 0));
+        parser_stack_pop(parser, 1);
+        break;
+    case RULE_STMT_STMT_STMT :
+        ast = parser_stack_peek(parser, 1);
         while (ast->next != NULL)
             ast = ast->next;
-		ast->next = parser_stack_peek(parser, 0);
-		ast->next->type = TOK_PARAM;
+        ast->next = parser_stack_peek(parser, 0);
+        parser_stack_pop(parser, 1);
+        break;
+    case RULE_COND_EXPR_LESS_EXPR :
+    case RULE_COND_EXPR_GREATER_EXPR :
+        ast = parser_stack_peek(parser, 1);
+        ast->subtype = ast->type;
+        ast->type = TOK_COND;
+        ast->left = parser_stack_peek(parser, 2);
+        ast->right = parser_stack_peek(parser, 0);
+        parser_stack_pop(parser, 3);
+        parser_stack_push(parser, ast);
+        break;
+    case RULE_STMT_END_STMT_COND_IF :
+    case RULE_STMT_END_STMT_COND_WHILE :
+        ast = parser_stack_peek(parser, 3);
+        if (ast->type == TOK_IF)
+            ast->subtype = TOK_BRANCH;
+        else if (ast->type == TOK_WHILE)
+            ast->subtype = TOK_LOOP;
+        ast->type = TOK_STMT;
+        ast->condition = parser_stack_peek(parser, 2);
+        ast->block = parser_stack_peek(parser, 1);
+        ast_destroy(parser_stack_peek(parser, 0));
+        parser_stack_pop(parser, 4);
+        parser_stack_push(parser, ast);
+        break;
+    case RULE_EXPR_PARENC_EXPR_PARENO :
+        ast = parser_stack_peek(parser, 1);
+        ast_destroy(parser_stack_peek(parser, 0));
+        ast_destroy(parser_stack_peek(parser, 2));
+        parser_stack_pop(parser, 3);
+        parser_stack_push(parser, ast);
+        break;
+    case RULE_PARAMLIST_PARENC_PARAM_PARENO :
+        ast = parser_stack_peek(parser, 1);
+        ast->type = TOK_PARAMLIST;
+        ast_destroy(parser_stack_peek(parser, 0));
+        ast_destroy(parser_stack_peek(parser, 2));
+        parser_stack_pop(parser, 3);
+        parser_stack_push(parser, ast);
+        break;
+    case RULE_PARAM_PARENC_EXPR_PARENO_SYM :
+        ast = parser_stack_peek(parser, 1);
+        ast->type = TOK_PARAM;
+        ast_destroy(parser_stack_peek(parser, 0));
+        ast_destroy(parser_stack_peek(parser, 2));
+        parser_stack_pop(parser, 3);
+        parser_stack_push(parser, ast);
+        break;
+    case RULE_PARAM_EXPR_COMMA_EXPR :
+    case RULE_PARAM_EXPR_COMMA_PARAM :
+        ast = parser_stack_peek(parser, 1);
         ast = parser_stack_peek(parser, 2);
-		ast_destroy(parser_stack_peek(parser, 1));
-		parser_stack_pop(parser, 3);
-		parser_stack_push(parser, ast);
-		break;
-	case RULE_EXPR_PARAMLIST_SYM :
-		ast = ast_create(TOK_EXPR, NULL);
-		ast->subtype = TOK_FUNC;
-		ast->left = parser_stack_peek(parser, 1);
-		ast->params = parser_stack_peek(parser, 0);
-		parser_stack_pop(parser, 2);
-		parser_stack_push(parser, ast);
-		break;
-	case RULE_STMT_END_STMT_PARAMLIST_SYM_FUNC :
-		ast = ast_create(TOK_STMT, NULL);
+        ast->type = TOK_PARAM;
+        while (ast->next != NULL)
+            ast = ast->next;
+        ast->next = parser_stack_peek(parser, 0);
+        ast->next->type = TOK_PARAM;
+        ast = parser_stack_peek(parser, 2);
+        ast_destroy(parser_stack_peek(parser, 1));
+        parser_stack_pop(parser, 3);
+        parser_stack_push(parser, ast);
+        break;
+    case RULE_EXPR_PARAMLIST_SYM :
+        ast = ast_create(TOK_EXPR, NULL);
+        ast->subtype = TOK_FUNC;
+        ast->left = parser_stack_peek(parser, 1);
+        ast->params = parser_stack_peek(parser, 0);
+        parser_stack_pop(parser, 2);
+        parser_stack_push(parser, ast);
+        break;
+    case RULE_STMT_END_STMT_PARAMLIST_SYM_FUNC :
+        ast = ast_create(TOK_STMT, NULL);
         ast->subtype = TOK_FUNCDEC;
-		ast->block = parser_stack_peek(parser, 1);
-		ast->params = parser_stack_peek(parser, 2);
-		ast->left = parser_stack_peek(parser, 3);
-		ast_destroy(parser_stack_peek(parser, 4));
-		ast_destroy(parser_stack_peek(parser, 0));
-		parser_stack_pop(parser, 5);
-		parser_stack_push(parser, ast);
-		break;
+        ast->block = parser_stack_peek(parser, 1);
+        ast->params = parser_stack_peek(parser, 2);
+        ast->left = parser_stack_peek(parser, 3);
+        ast_destroy(parser_stack_peek(parser, 4));
+        ast_destroy(parser_stack_peek(parser, 0));
+        parser_stack_pop(parser, 5);
+        parser_stack_push(parser, ast);
+        break;
     case RULE_STMT_EXPR_RETURN :
         ast = parser_stack_peek(parser, 1);
         ast->subtype = TOK_RETURN;
@@ -317,51 +317,51 @@ int parser_reduce (struct parser_s * parser, int lookahead)
         parser_stack_pop(parser, 2);
         parser_stack_push(parser, ast);
         break;
-	}
-	printf("done\n");fflush(stdout);
-	return 1;
+    }
+    printf("done\n");fflush(stdout);
+    return 1;
 }
 
 
 void parser_stack_debug (struct parser_s * parser)
 {
-	struct ast_s * ast;
-	int depth;
-	
-	depth = 0;
-	while ((ast = parser_stack_peek(parser, depth)) != NULL) {
-		depth++;
-	}
+    struct ast_s * ast;
+    int depth;
+    
+    depth = 0;
+    while ((ast = parser_stack_peek(parser, depth)) != NULL) {
+        depth++;
+    }
 }
 
 
 struct parser_s * parser_parse (struct token_s * tokens)
 {
-	struct parser_s * parser;
-	struct token_s * cur;
+    struct parser_s * parser;
+    struct token_s * cur;
     struct token_s * next;
-	
-	parser = (struct parser_s *) malloc(sizeof(struct parser_s));
-	parser->bottom = NULL;
-	parser->top = NULL;
-	parser->ast = NULL;
-	parser->stack_size = 0;
-	
-	cur = tokens;
-	while (cur != NULL) {
-		printf("parser push %s %s\n", tok_debug_string(cur->type), cur->text);
-		parser_stack_push(parser, ast_create(cur->type, cur));
+    
+    parser = (struct parser_s *) malloc(sizeof(struct parser_s));
+    parser->bottom = NULL;
+    parser->top = NULL;
+    parser->ast = NULL;
+    parser->stack_size = 0;
+    
+    cur = tokens;
+    while (cur != NULL) {
+        printf("parser push %s %s\n", tok_debug_string(cur->type), cur->text);
+        parser_stack_push(parser, ast_create(cur->type, cur));
         next = cur->next;
-		if (next == NULL) {
-			while (parser_reduce(parser, -1))
-				parser_stack_debug(parser);
-		}
-		else {
-			while (parser_reduce(parser, next->type))
-				parser_stack_debug(parser);
-		}
-		cur = next;
-	}
-	
-	return parser;
+        if (next == NULL) {
+            while (parser_reduce(parser, -1))
+                parser_stack_debug(parser);
+        }
+        else {
+            while (parser_reduce(parser, next->type))
+                parser_stack_debug(parser);
+        }
+        cur = next;
+    }
+    
+    return parser;
 };

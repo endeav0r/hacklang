@@ -33,15 +33,15 @@
 #define RULE_STMT_EXPR_RETURN                    22
 
 struct parser_stack_s {
-	struct ast_s * ast;
-	struct parser_stack_s * prev;
+    struct ast_s * ast;
+    struct parser_stack_s * prev;
 };
 
 struct parser_s {
-	int stack_size;
-	struct ast_s * ast;
-	struct parser_stack_s * bottom;
-	struct parser_stack_s * top;
+    int stack_size;
+    struct ast_s * ast;
+    struct parser_stack_s * bottom;
+    struct parser_stack_s * top;
 };
 
 struct parser_s * parser_parse (struct token_s * tokens);

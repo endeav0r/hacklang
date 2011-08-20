@@ -8,16 +8,16 @@
 #include "variable.h"
 
 struct st_s {
-	struct st_node_s * nodes;
-	struct st_s * next;
+    struct st_node_s * nodes;
+    struct st_s * next;
 };
 
 struct st_node_s {
-	char * symbol;
-	struct var_s * var;
-	int level;
-	struct st_node_s * left;
-	struct st_node_s * right;
+    char * symbol;
+    struct var_s * var;
+    int level;
+    struct st_node_s * left;
+    struct st_node_s * right;
 };
 
 

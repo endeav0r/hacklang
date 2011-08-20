@@ -28,16 +28,16 @@
 #define TOK_RETURN  21
 
 struct token_s {
-	char * text;
-	int type;
-	struct token_s * next;
-	struct token_s * prev;
+    char * text;
+    int type;
+    struct token_s * next;
+    struct token_s * prev;
 };
 
 
 struct lexer_s {
-	struct token_s * first;
-	struct token_s * last;
+    struct token_s * first;
+    struct token_s * last;
 };
 
 struct token_s * lexer_lex (char * text);
