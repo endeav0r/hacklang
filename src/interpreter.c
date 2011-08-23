@@ -162,15 +162,14 @@ void in_assign (struct in_s * in, struct ast_s * ast)
 }
 
 
-struct var_s * in_call (struct in_s * in, struct ast_s * ast) {
+struct var_s * in_call (struct in_s * in, struct ast_s * ast) 
+{
     struct var_s * ret_var;
     struct var_s * func_var;
     struct var_s * param_var;
     struct ast_s * func_ast;
     struct ast_s * caller_param;
     struct ast_s * callee_param;
-    
-    printf("call %s\n", ast->left->token->text);
     
     // get function from symbol table
     func_var = st_find(in->st, ast->left->token->text);
@@ -179,9 +178,13 @@ struct var_s * in_call (struct in_s * in, struct ast_s * ast) {
                 ast->left->token->text);
         exit(-1);
     }
+    
     func_ast = func_var->ast;
     
-    printf("push stack frame\n");
+    // if this is a capi_call, the capi code will handle it
+    if (func_var->type == TYPE_CFUNC)
+        return capi_call(in, func_ast);
+    
     // push symbol table/stack frame
     in->st = st_push(in->st);
     
@@ -195,30 +198,24 @@ struct var_s * in_call (struct in_s * in, struct ast_s * ast) {
             exit(-1);
         }
         param_var = in_expr(in, caller_param);
-        st_debug(in->st);
         st_insert(in->st, callee_param->token->text, param_var);
-        printf("%s = %s\n", callee_param->token->text, var_to_string(param_var));
         caller_param = caller_param->next;
         callee_param = callee_param->next;
     }
     
-    printf("in_stmt\n");
     // execute statements and get return value
     ret_var = in_stmt(in, func_ast->block);
     
-    printf("pop stack frame\n");
     // pop symbol table/stack frame
-    st_debug(in->st);
     in->st = st_pop(in->st);
-    st_debug(in->st);
     
-    printf("return value: %s\n", var_to_string(ret_var));
     return ret_var;
 }
     
 
 
-void in_funcdec (struct in_s * in, struct ast_s * ast) {
+void in_funcdec (struct in_s * in, struct ast_s * ast)
+{
     struct var_s * var;
     struct var_s * new;
     
@@ -232,6 +229,4 @@ void in_funcdec (struct in_s * in, struct ast_s * ast) {
         var = var_create_func(ast);
         st_insert(in->st, ast->left->token->text, var);
     }
-    printf("funcdec st_debug\n");
-    st_debug(in->st);
 }

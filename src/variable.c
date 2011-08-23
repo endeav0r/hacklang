@@ -41,6 +41,17 @@ struct var_s * var_create_func (struct ast_s * ast) {
 }
 
 
+struct var_s * var_create_capi_function (int (*capi_function)
+                                         (struct capi_stack_s *)) {
+    struct var_s * var;
+    
+    var = var_create(TYPE_CFUNC, NULL);
+    var->capi_function = capi_function;
+    
+    return var;
+}
+
+
 struct var_s * var_add (struct var_s * a, struct var_s * b)
 {
     struct var_s * r;
@@ -98,9 +109,16 @@ void var_set (struct var_s * a, struct var_s * b)
         a->type = TYPE_INT;
         a->i = b->i;
         break;
+    case TYPE_NULL :
+        a->type = TYPE_NULL;
+        break;
     case TYPE_FUNC :
         a->type = TYPE_FUNC;
         a->ast = b->ast;
+        break;
+    case TYPE_CFUNC :
+        a->type = TYPE_CFUNC;
+        a->capi_function = b->capi_function;
         break;
     }
 }
@@ -119,6 +137,9 @@ struct var_s * var_copy (struct var_s * src)
         break;
     case TYPE_FUNC :
         r = var_create_func(src->ast);
+        break;
+    case TYPE_CFUNC :
+        r = var_create_capi_function (src->capi_function);
         break;
     default :
         fprintf(stderr, "var_copy on invalid type %d\n", src->type);
@@ -143,8 +164,14 @@ int var_cmp (struct var_s * a, struct var_s * b)
         else if (a->i > b->i)
             return 1;
         return 0;
+    case TYPE_NULL :
+        return 0;
     case TYPE_FUNC :
         if (a->ast == b->ast)
+            return 0;
+        return 1;
+    case TYPE_CFUNC :
+        if (a->capi_function == b->capi_function)
             return 0;
         return 1;
     }
@@ -173,6 +200,10 @@ char * var_to_string (struct var_s * var)
     case TYPE_FUNC :
         var->string = (char *) malloc(64);
         snprintf(var->string, 64, "<function at %p>", var->ast);
+        break;
+    case TYPE_CFUNC :
+        var->string = (char *) malloc(64);
+        snprintf(var->string, 64, "<capi_function at %p>", var->capi_function);
         break;
     default :
         fprintf(stderr, "var_to_string on invalid type %d\n", var->type);

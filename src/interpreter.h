@@ -27,6 +27,4 @@ int            in_cond    (struct in_s * in, struct ast_s * ast);
 struct var_s * in_call    (struct in_s * in, struct ast_s * ast);
 void           in_funcdec (struct in_s * in, struct ast_s * ast);
 
-
-
 #endif

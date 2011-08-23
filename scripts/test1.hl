@@ -2,7 +2,7 @@ test = 5
 test = test + 3
 
 if test > 20
-	test = 3
+    test = 3
 end
 
 test2 = 5
@@ -10,5 +10,5 @@ test2 = 5
 test3 = 0
 
 while test3 < 7
-	test3 = test3 + 1
+    test3 = test3 + 1
 end
