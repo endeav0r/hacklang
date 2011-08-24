@@ -30,11 +30,11 @@ char * hl_read_file (char * filename)
     printf("filesize %d\n", filesize);
     
     text = (char *) malloc(filesize + 2);
-	memset(text, 0, filesize + 2);
+    memset(text, 0, filesize + 2);
     
     fread(text, 1, filesize, fh);
-	text[filesize] = '\n';
-	text[filesize + 1] = (char) 0;
+    text[filesize] = '\n';
+    text[filesize + 1] = (char) 0;
     
     fclose(fh);
     
@@ -66,9 +66,9 @@ int main (int argc, char * argv[])
     }
     
     in = in_create();
-	
-	lib_standard_register(in);
-	
+    
+    lib_standard_register(in);
+    
     in_exec(in, parser_stack_peek(parser, 0));
     
     st_debug(in->st);

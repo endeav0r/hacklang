@@ -123,10 +123,10 @@ struct token_s * lexer_lex (char * text)
                 lexer_token_append(&lexer, token_create("==", 2, TOK_EQUAL));
                 text_i += 2;
             }
-			else {
-				lexer_token_append(&lexer, token_create("=", 1, TOK_ASSIGN));
-				text_i++;
-			}
+            else {
+                lexer_token_append(&lexer, token_create("=", 1, TOK_ASSIGN));
+                text_i++;
+            }
             continue;
         case '*' :
             lexer_token_append(&lexer, token_create("*", 1, TOK_STAR));
@@ -168,10 +168,10 @@ struct token_s * lexer_lex (char * text)
             lexer_token_append(&lexer, token_create("]", 1, TOK_BRACK_C));
             text_i++;
             continue;
-		case '%' :
-			lexer_token_append(&lexer, token_create("%", 1, TOK_MOD));
-			text_i++;
-			continue;
+        case '%' :
+            lexer_token_append(&lexer, token_create("%", 1, TOK_MOD));
+            text_i++;
+            continue;
         }
         // match symbol
         if (is_alpha(text[text_i])) {

@@ -104,55 +104,55 @@ struct var_s * var_sub (struct var_s * a, struct var_s * b)
 
 struct var_s * var_mul (struct var_s * a, struct var_s * b)
 {
-	struct var_s * r;
-	
-	r = var_create(TYPE_NULL, NULL);
-	if ((a->type == TYPE_INT) && (b->type == TYPE_INT)) {
-		r->type = TYPE_INT;
-		r->i = a->i * b->i;
-	}
-	else {
-		fprintf(stderr, "multiplying incompatible types %d %d\n", a->type, b->type);
-		exit(-1);
-	}
-	
-	return r;
+    struct var_s * r;
+    
+    r = var_create(TYPE_NULL, NULL);
+    if ((a->type == TYPE_INT) && (b->type == TYPE_INT)) {
+        r->type = TYPE_INT;
+        r->i = a->i * b->i;
+    }
+    else {
+        fprintf(stderr, "multiplying incompatible types %d %d\n", a->type, b->type);
+        exit(-1);
+    }
+    
+    return r;
 }
 
 
 struct var_s * var_div (struct var_s * a, struct var_s * b)
 {
-	struct var_s * r;
-	
-	r = var_create(TYPE_NULL, NULL);
-	if ((a->type == TYPE_INT) && (b->type == TYPE_INT)) {
-		r->type = TYPE_INT;
-		r->i = a->i / b->i;
-	}
-	else {
-		fprintf(stderr, "dividing incompatible types %d %d\n", a->type, b->type);
-		exit(-1);
-	}
-	
-	return r;
+    struct var_s * r;
+    
+    r = var_create(TYPE_NULL, NULL);
+    if ((a->type == TYPE_INT) && (b->type == TYPE_INT)) {
+        r->type = TYPE_INT;
+        r->i = a->i / b->i;
+    }
+    else {
+        fprintf(stderr, "dividing incompatible types %d %d\n", a->type, b->type);
+        exit(-1);
+    }
+    
+    return r;
 }
 
 
 struct var_s * var_mod (struct var_s * a, struct var_s * b)
 {
-	struct var_s * r;
-	
-	r = var_create(TYPE_NULL, NULL);
-	if ((a->type == TYPE_INT) && (b->type == TYPE_INT)) {
-		r->type = TYPE_INT;
-		r->i = a->i % b->i;
-	}
-	else {
-		fprintf(stderr, "modulocombobing incompatible types %d %d\n", a->type, b->type);
-		exit(-1);
-	}
-	
-	return r;
+    struct var_s * r;
+    
+    r = var_create(TYPE_NULL, NULL);
+    if ((a->type == TYPE_INT) && (b->type == TYPE_INT)) {
+        r->type = TYPE_INT;
+        r->i = a->i % b->i;
+    }
+    else {
+        fprintf(stderr, "modulocombobing incompatible types %d %d\n", a->type, b->type);
+        exit(-1);
+    }
+    
+    return r;
 }
 
 

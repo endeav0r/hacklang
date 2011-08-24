@@ -21,7 +21,7 @@ struct var_s * capi_call (struct in_s * in, struct ast_s * ast);
 
 void capi_register_function (struct in_s * in,
                              int (* capi_function) (struct capi_stack_s *),
-							 char * symbol);
+                             char * symbol);
 
 struct capi_stack_s * capi_stack_create  ();
 void                  capi_stack_destroy (struct capi_stack_s * capi_stack);
