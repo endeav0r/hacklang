@@ -1,7 +1,8 @@
 #include "debug.h"
 
 
-char * tok_debug_string (int type) {
+char * tok_debug_string (int type)
+{
     switch (type) {
     case TOK_NUM :
         return "TOK_NUM";

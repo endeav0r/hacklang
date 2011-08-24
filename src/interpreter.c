@@ -1,7 +1,5 @@
 #include "interpreter.h"
 
-
-
 struct in_s * in_create ()
 {
     struct in_s * in;

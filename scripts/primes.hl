@@ -2,7 +2,7 @@ i = 2
 while i < 50
     n = 2
     prime = 1
-    while n < i / 2 + 1
+    while n * n < i + 1
         if i % n == 0
             prime = 0
         end
