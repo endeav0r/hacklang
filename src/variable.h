@@ -5,18 +5,21 @@
 #include <stdlib.h>
 
 #include "ast.h"
+#include "capi.h"
 
 #define TYPE_INT   1
 #define TYPE_NULL  2
 #define TYPE_FUNC  3
 #define TYPE_CFUNC 4
 
+struct capi_stack_s;
+
 struct var_s {
     int type;
     union {
         int i;
         struct ast_s * ast;
-        int (* capi_function) (struct capi_stack_s *);
+        int (* capi_function) (struct capi_stack_s * capi_stack);
     };
     char * string;
 };
@@ -29,6 +32,10 @@ struct var_s * var_create_capi_function (int (*capi_function)
 
 struct var_s * var_add  (struct var_s * a, struct var_s * b);
 struct var_s * var_sub  (struct var_s * a, struct var_s * b);
+struct var_s * var_mul  (struct var_s * a, struct var_s * b);
+struct var_s * var_div  (struct var_s * a, struct var_s * b);
+struct var_s * var_mod  (struct var_s * a, struct var_s * b);
+
 void           var_set  (struct var_s * a, struct var_s * b);
 struct var_s * var_copy (struct var_s * src);
 

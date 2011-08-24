@@ -46,7 +46,7 @@ void ast_debug_print (struct ast_s * ast, int depth, char * prepend, int next)
         printf("%s\n", ast->token->text);
     }
     else
-        printf("%d\n", ast->type);
+        printf("%s\n", tok_debug_string(ast->type));
     ast_debug_print(ast->params, depth + 1, "(", next);
     ast_debug_print(ast->condition, depth + 1, "?", next);
     ast_debug_print(ast->left, depth + 1, "<", next);

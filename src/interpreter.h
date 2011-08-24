@@ -2,6 +2,7 @@
 #define interpreter_HEADER
 
 #include "ast.h"
+#include "capi.h"
 #include "lexer.h"
 #include "symboltable.h"
 #include "variable.h"

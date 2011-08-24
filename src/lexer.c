@@ -65,11 +65,11 @@ int is_numeric (char c)
 int lexer_keyword_match (char * text, int len) {
     switch (len) {
     case 2 :
-        if (strcmp("if", text) == 0)
+        if (strncmp("if", text, len) == 0)
             return TOK_IF;
         break;
     case 3 :
-        if (strncmp("end", text, strlen("end")) == 0)
+        if (strncmp("end", text, len) == 0)
             return TOK_END;
         break;
     case 4 :
@@ -77,7 +77,7 @@ int lexer_keyword_match (char * text, int len) {
             return TOK_FUNC;
         break;
     case 5 :
-        if (strncmp("while", text, strlen("while")) == 0)
+        if (strncmp("while", text, len) == 0)
             return TOK_WHILE;
         break;
     case 6 :
@@ -121,10 +121,12 @@ struct token_s * lexer_lex (char * text)
         case '=' :
             if (text[text_i+1] == '=') {
                 lexer_token_append(&lexer, token_create("==", 2, TOK_EQUAL));
-                text_i += 1;
+                text_i += 2;
             }
-            lexer_token_append(&lexer, token_create("=", 1, TOK_ASSIGN));
-            text_i++;
+			else {
+				lexer_token_append(&lexer, token_create("=", 1, TOK_ASSIGN));
+				text_i++;
+			}
             continue;
         case '*' :
             lexer_token_append(&lexer, token_create("*", 1, TOK_STAR));
@@ -166,6 +168,10 @@ struct token_s * lexer_lex (char * text)
             lexer_token_append(&lexer, token_create("]", 1, TOK_BRACK_C));
             text_i++;
             continue;
+		case '%' :
+			lexer_token_append(&lexer, token_create("%", 1, TOK_MOD));
+			text_i++;
+			continue;
         }
         // match symbol
         if (is_alpha(text[text_i])) {

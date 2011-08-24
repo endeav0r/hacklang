@@ -9,43 +9,49 @@ void capi_register_function (struct in_s * in,
     
     var = var_create_capi_function(capi_function);
     
-    st_insert(in->st, var, symbol);
+    st_insert(in->st, symbol, var);
 }
 
 
-/*
-struct var_s * capi_call (struct in_s * in, struct ast_s * func_ast)
+struct var_s * capi_call (struct in_s * in, struct ast_s * ast)
 {
+	int capi_ret_val;
 	struct capi_stack_s * capi_stack;
-
     struct var_s * ret_var;
     struct var_s * param_var;
+	struct var_s * func_var;
+    struct ast_s * func_ast;
     struct ast_s * caller_param;
-    struct ast_s * callee_param;
+	
+	capi_stack = NULL;
     
-    // set params
-    caller_param = ast->params;
-    callee_param = func_ast->params;
-    while (callee_param != NULL) {
-        if (caller_param == NULL) {
-            fprintf(stderr, "not enough arguments supplied to func %s\n",
-                    func_ast->left->token->text);
-            exit(-1);
-        }
-        param_var = in_expr(in, caller_param);
-        st_insert(in->st, callee_param->token->text, param_var);
-        caller_param = caller_param->next;
-        callee_param = callee_param->next;
+    // get function from symbol table
+    func_var = st_find(in->st, ast->left->token->text);
+    if (func_var == NULL) {
+        fprintf(stderr, "called non-existant function %s\n",
+                ast->left->token->text);
+        exit(-1);
     }
     
-    // execute statements and get return value
-    ret_var = in_stmt(in, func_ast->block);
+    func_ast = func_var->ast;
     
-    // pop symbol table/stack frame
-    in->st = st_pop(in->st);
+    // push params onto stack
+    caller_param = ast->params;
+    while (caller_param != NULL) {
+        param_var = in_expr(in, caller_param);
+		capi_stack = capi_stack_push(capi_stack, param_var);
+	    caller_param = caller_param->next;
+    }
     
-    return ret_var;
-*/
+	capi_ret_val = func_var->capi_function(capi_stack);
+	
+	if (capi_ret_val == 1)
+		ret_var = capi_stack->var;
+	else
+		ret_var = var_create(TYPE_NULL, NULL);
+    
+	return ret_var;
+}
 
 	
 struct capi_stack_s * capi_stack_create ()
@@ -103,7 +109,7 @@ int capi_stack_size (struct capi_stack_s * capi_stack)
 		next = next->next;
 	}
 	
-	return next;
+	return size;
 }
 
 
@@ -133,7 +139,7 @@ int capi_stack_type (struct capi_stack_s * capi_stack, int depth)
 }
 
 
-int capi_to_int (struct capi_stack_s * capi_stack, int depth) {
+int capi_stack_to_int (struct capi_stack_s * capi_stack, int depth) {
 	struct capi_stack_s * next;
 	
 	next = capi_stack;

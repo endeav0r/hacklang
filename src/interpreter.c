@@ -54,6 +54,9 @@ struct var_s * in_stmt (struct in_s * in, struct ast_s * ast)
         else if (ast->subtype == TOK_RETURN) {
             return in_expr(in, ast->block);
         }
+		else if (ast->subtype == TOK_FUNC) {
+			var_destroy(in_call(in, ast));
+		}
         else if (ast->block != NULL)
             in_stmt(in, ast->block);
         ast = ast->next;
@@ -105,32 +108,41 @@ struct var_s * in_expr (struct in_s * in, struct ast_s * ast)
     struct var_s * b;
     struct var_s * r;
     
-    if (ast->subtype == TOK_ADD) {
+	switch (ast->subtype) {
+	case TOK_ADD :
+	case TOK_MINUS :
+	case TOK_STAR :
+	case TOK_DIV :
+	case TOK_MOD :
         a = in_expr(in, ast->left);
         b = in_expr(in, ast->right);
-        r = var_add(a, b);
+		if (ast->subtype == TOK_ADD)
+			r = var_add(a, b);
+		else if (ast->subtype == TOK_MINUS)
+			r = var_sub(a, b);
+		else if (ast->subtype == TOK_STAR)
+			r = var_mul(a, b);
+		else if (ast->subtype == TOK_DIV)
+			r = var_div(a, b);
+		else
+			r = var_mod(a, b);
         var_destroy(a);
         var_destroy(b);
-    }
-    else if (ast->subtype == TOK_MINUS) {
-        a = in_expr(in, ast->left);
-        b = in_expr(in, ast->right);
-        r = var_sub(a, b);
-        var_destroy(a);
-        var_destroy(b);
-    }
-    else if (ast->subtype == TOK_NUM)
+		break;
+	case TOK_NUM :
         r = var_create(TYPE_INT, ast->token->text);
-    else if (ast->subtype == TOK_FUNC)
+		break;
+	case TOK_FUNC :
         r = in_call(in, ast);
-    else if (ast->subtype == TOK_SYM) {
+		break;
+	case TOK_SYM :
         r = st_find(in->st, ast->token->text);
         if (r == NULL)
             r = var_create(TYPE_NULL, "");
         else
             r = var_copy(r);
-    }
-    else {
+		break;
+	default :
         fprintf(stderr, "in_expr invalid type %d\n", ast->subtype);
         exit(-1);
     }
@@ -182,8 +194,9 @@ struct var_s * in_call (struct in_s * in, struct ast_s * ast)
     func_ast = func_var->ast;
     
     // if this is a capi_call, the capi code will handle it
-    if (func_var->type == TYPE_CFUNC)
-        return capi_call(in, func_ast);
+    if (func_var->type == TYPE_CFUNC) {
+        return capi_call(in, ast);
+	}
     
     // push symbol table/stack frame
     in->st = st_push(in->st);
