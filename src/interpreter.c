@@ -132,6 +132,9 @@ struct var_s * in_expr (struct in_s * in, struct ast_s * ast)
     case TOK_NUM :
         r = var_create(TYPE_INT, ast->token->text);
         break;
+    case TOK_STRING :
+        r = var_create(TYPE_STRING, ast->token->text);
+        break;
     case TOK_FUNC :
         r = in_call(in, ast);
         break;

@@ -7,5 +7,6 @@
 void lib_standard_register (struct in_s * in);
 
 int lib_standard_print (struct capi_stack_s * capi_stack);
+int lib_standard_str   (struct capi_stack_s * capi_stack);
 
 #endif

@@ -27,7 +27,8 @@ int MATCH [PARSER_RULES][PARSER_RULES_MAXLEN] = {
 /* 22 */ {TOK_EXPR, TOK_RETURN, -1},
 /* 23 */ {TOK_TERM, TOK_EXPR, -1},
 /* 24 */ {TOK_EXPR, TOK_MOD, TOK_EXPR, -1},
-/* 25 */ {TOK_EXPR, TOK_EQUAL, TOK_EXPR, -1}
+/* 25 */ {TOK_EXPR, TOK_EQUAL, TOK_EXPR, -1},
+/* 26 */ {TOK_STRING, -1}
 };
 
 int LOOKAHEAD [PARSER_RULES][PARSER_LOOKAHEAD_MAXLEN] = {
@@ -56,7 +57,8 @@ int LOOKAHEAD [PARSER_RULES][PARSER_LOOKAHEAD_MAXLEN] = {
 /* 22 */ {TOK_PAREN_O, TOK_ADD, TOK_MINUS, TOK_STAR, TOK_DIV, -1},
 /* 23 */ {-1},
 /* 24 */ {TOK_PAREN_O, -1},
-/* 25 */ {TOK_PAREN_O, TOK_ADD, TOK_MINUS, TOK_STAR, TOK_DIV, -1}
+/* 25 */ {TOK_PAREN_O, TOK_ADD, TOK_MINUS, TOK_STAR, TOK_DIV, -1},
+/* 26 */ {-1}
 };
 
 
@@ -182,6 +184,7 @@ int parser_reduce (struct parser_s * parser, int lookahead)
             if (ast->type == TOK_FUNC)
                 rule = -1;
         }
+        break;
     case RULE_STMT_TERM_EXPR :
         // RULE_STMT_TERM_EXPR is designed to allow for one line statements
         // and can only fire if certain things are beneath it on the stack
@@ -201,14 +204,11 @@ int parser_reduce (struct parser_s * parser, int lookahead)
     
     switch (rule) {
     case RULE_EXPR_NUM :
-        ast = parser_stack_peek(parser, 0);
-        ast->type = TOK_EXPR;
-        ast->subtype = TOK_NUM;
-        break;
     case RULE_EXPR_SYM :
+    case RULE_EXPR_STRING :
         ast = parser_stack_peek(parser, 0);
+        ast->subtype = ast->type;
         ast->type = TOK_EXPR;
-        ast->subtype = TOK_SYM;
         break;
     case RULE_EXPR_EXPR_ADD_EXPR :
     case RULE_EXPR_EXPR_MINUS_EXPR :
@@ -368,7 +368,8 @@ struct parser_s * parser_parse (struct token_s * tokens)
     cur = tokens;
     while (cur != NULL) {
         parser_stack_push(parser, ast_create(cur->type, cur));
-        printf("parser stack push: %s\n", tok_debug_string(cur->type));
+        printf("parser stack push: %s => %s\n", tok_debug_string(cur->type), 
+               cur->text);
         next = cur->next;
         if (next == NULL) {
             while (parser_reduce(parser, -1))

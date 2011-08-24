@@ -71,8 +71,6 @@ int main (int argc, char * argv[])
     
     in_exec(in, parser_stack_peek(parser, 0));
     
-    st_debug(in->st);
-    
     in_destroy(in);
     
     free(text);

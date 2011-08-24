@@ -7,10 +7,11 @@
 #include "ast.h"
 #include "capi.h"
 
-#define TYPE_INT   1
-#define TYPE_NULL  2
-#define TYPE_FUNC  3
-#define TYPE_CFUNC 4
+#define TYPE_INT    1
+#define TYPE_NULL   2
+#define TYPE_FUNC   3
+#define TYPE_CFUNC  4
+#define TYPE_STRING 5
 
 struct capi_stack_s;
 

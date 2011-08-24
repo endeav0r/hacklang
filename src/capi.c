@@ -133,17 +133,19 @@ int capi_stack_type (struct capi_stack_s * capi_stack, int depth)
         return CAPI_TYPE_INT;
     case TYPE_NULL :
         return CAPI_TYPE_NULL;
+    case TYPE_STRING :
+        return CAPI_TYPE_STRING;
     }
     
     return CAPI_TYPE_UNKNOWN;
 }
 
 
-int capi_stack_to_int (struct capi_stack_s * capi_stack, int depth) {
+int capi_stack_to_int (struct capi_stack_s * capi_stack, int depth)
+{
     struct capi_stack_s * next;
     
     next = capi_stack;
-    
     while (depth-- > 0) {
         if (next == NULL)
             break;
@@ -154,4 +156,22 @@ int capi_stack_to_int (struct capi_stack_s * capi_stack, int depth) {
         return 0;
     
     return next->var->i;
+}
+
+
+char * capi_stack_to_string (struct capi_stack_s * capi_stack, int depth)
+{
+    struct capi_stack_s * next;
+    
+    next = capi_stack;
+    while (depth-- > 0) {
+        if (next == NULL)
+            break;
+        next = next->next;
+    }
+    
+    if (next == NULL)
+        return NULL;
+    
+    return var_to_string (next->var);
 }

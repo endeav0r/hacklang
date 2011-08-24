@@ -1,6 +1,7 @@
 #include "variable.h"
 
-struct var_s * var_create (int type, char * value) {
+struct var_s * var_create (int type, char * value)
+{
     struct var_s * var;
     
     var = (struct var_s *) malloc(sizeof(struct var_s));
@@ -8,12 +9,16 @@ struct var_s * var_create (int type, char * value) {
     var->type = type;
     var->string = NULL;
     switch (type) {
-        case TYPE_INT :
-            if (value == NULL)
-                var->i = 0;
-            else
-                var->i = strtoul(value, NULL, 0);
-            break;
+    case TYPE_INT :
+        if (value == NULL)
+            var->i = 0;
+        else
+            var->i = strtoul(value, NULL, 0);
+        break;
+    case TYPE_STRING :
+        var->string = (char *) malloc(strlen(value) + 1);
+        strcpy(var->string, value);
+        break;
     }
     
     return var;
@@ -29,7 +34,8 @@ void var_destroy (struct var_s * var)
 }
 
 
-struct var_s * var_create_func (struct ast_s * ast) {
+struct var_s * var_create_func (struct ast_s * ast)
+{
     struct var_s * var;
     
     var = (struct var_s *) malloc(sizeof(struct var_s));
@@ -42,7 +48,8 @@ struct var_s * var_create_func (struct ast_s * ast) {
 
 
 struct var_s * var_create_capi_function (int (*capi_function)
-                                         (struct capi_stack_s *)) {
+                                         (struct capi_stack_s *))
+{
     struct var_s * var;
     
     var = var_create(TYPE_CFUNC, NULL);
@@ -63,13 +70,20 @@ struct var_s * var_add (struct var_s * a, struct var_s * b)
             r->type = TYPE_INT;
             r->i = a->i + b->i;
             break;
+        case TYPE_STRING :
+            r->type = TYPE_STRING;
+            r->string = (char *) malloc(strlen(a->string) + strlen(b->string) + 1);
+            strcpy(r->string, a->string);
+            strcat(r->string, b->string);
+            break;
         default :
-            r->type = TYPE_NULL;
+            fprintf(stderr, "adding incompatible types %d %d\n", a->type, b->type);
+            exit(-1);
             break;
         }
     }
     else {
-        fprintf(stderr, "adding incompatible types %d %d\n", a->type, b->type);
+        fprintf(stderr, "adding different types %d %d\n", a->type, b->type);
         exit(-1);
     }
     
@@ -104,12 +118,21 @@ struct var_s * var_sub (struct var_s * a, struct var_s * b)
 
 struct var_s * var_mul (struct var_s * a, struct var_s * b)
 {
+    int i;
     struct var_s * r;
     
     r = var_create(TYPE_NULL, NULL);
     if ((a->type == TYPE_INT) && (b->type == TYPE_INT)) {
         r->type = TYPE_INT;
         r->i = a->i * b->i;
+    }
+    else if ((a->type == TYPE_STRING) && (b->type == TYPE_INT)) {
+        r->type = TYPE_STRING;
+        r->string = (char *) malloc(strlen(a->string) * b->i + 1);
+        r->string[0] = (char) 0;
+        for (i = 0; i < b->i; i++) {
+            strcat(r->string, a->string);
+        }
     }
     else {
         fprintf(stderr, "multiplying incompatible types %d %d\n", a->type, b->type);
@@ -174,6 +197,13 @@ void var_set (struct var_s * a, struct var_s * b)
         a->type = TYPE_CFUNC;
         a->capi_function = b->capi_function;
         break;
+    case TYPE_STRING :
+        a->type = TYPE_STRING;
+        if (a->string != NULL)
+            free(a->string);
+        a->string = (char *) malloc(strlen(b->string) + 1);
+        strcpy(a->string, b->string);
+        break;
     }
 }
 
@@ -194,6 +224,9 @@ struct var_s * var_copy (struct var_s * src)
         break;
     case TYPE_CFUNC :
         r = var_create_capi_function (src->capi_function);
+        break;
+    case TYPE_STRING :
+        r = var_create(TYPE_STRING, src->string);
         break;
     default :
         fprintf(stderr, "var_copy on invalid type %d\n", src->type);
@@ -228,6 +261,8 @@ int var_cmp (struct var_s * a, struct var_s * b)
         if (a->capi_function == b->capi_function)
             return 0;
         return 1;
+    case TYPE_STRING :
+        return strcmp(a->string, b->string);
     }
     
     fprintf(stderr, "tried to compare invalid type %d %d\n", a->type, b->type);
@@ -238,6 +273,9 @@ int var_cmp (struct var_s * a, struct var_s * b)
     
 char * var_to_string (struct var_s * var)
 {
+    if (var->type == TYPE_STRING)
+        return var->string;
+        
     if (var->string != NULL)
         free(var->string);
     var->string = NULL;

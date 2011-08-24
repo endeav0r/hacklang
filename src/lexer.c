@@ -62,7 +62,8 @@ int is_numeric (char c)
 
 
 // returns -1 on no match
-int lexer_keyword_match (char * text, int len) {
+int lexer_keyword_match (char * text, int len)
+{
     switch (len) {
     case 2 :
         if (strncmp("if", text, len) == 0)
@@ -89,8 +90,33 @@ int lexer_keyword_match (char * text, int len) {
 }
 
 
+// helper functions for dealing with strings like stacks
+//  (as crazy as that sounds)
+// strings are malloced/realloced in 16 + 1 byte chunks, and pushed on to
+//  from there
+char * lexer_string_push (char * string, char c)
+{
+    int len;
+    
+    if (string == NULL) {
+        string = (char *) malloc(17);
+        string[0] = 0;
+        len = 0;
+    }
+    else if ((len = strlen(string)) % 16 == 0)
+        string = realloc(string, len + 16);
+    
+    string[len] = c;
+    string[len + 1] = 0;
+    
+    return string;
+}
+
+
 struct token_s * lexer_lex (char * text)
 {
+    int in_string;
+    char * string_buf;
     int c_i;
     int line = 1;
     int text_i;
@@ -101,7 +127,55 @@ struct token_s * lexer_lex (char * text)
     lexer.last  = NULL;
     
     text_i = 0;
+    in_string = 0;
+    string_buf = NULL;
     while (text_i < strlen(text)) {
+        // string handling
+        if (in_string) {
+            if (text[text_i] == '\\') {
+                switch (text[text_i + 1]) {
+                case '\\' :
+                    string_buf = lexer_string_push(string_buf, '\\');
+                    text_i += 2;
+                    continue;
+                case 'n' :
+                    string_buf = lexer_string_push(string_buf, '\n');
+                    text_i += 2;
+                    continue;
+                case 't' :
+                    string_buf = lexer_string_push(string_buf, '\t');
+                    text_i += 2;
+                    continue;
+                case '"' :
+                    string_buf = lexer_string_push(string_buf, '"');
+                    text_i += 2;
+                    continue;
+                default :
+                    fprintf(stderr, "invalid string escape line %d\n", line);
+                    exit(-1);
+                }
+            }
+            else if (text[text_i] == '"') {
+                in_string = 0;
+                lexer_token_append(&lexer,
+                                   token_create(string_buf, strlen(string_buf),
+                                                TOK_STRING));
+                string_buf = NULL;
+                text_i++;
+                continue;
+            }
+            else {
+                string_buf = lexer_string_push(string_buf, text[text_i]);
+                text_i++;
+                continue;
+            }
+        }
+        else if (text[text_i] == '"') {
+            in_string = 1;
+            text_i++;
+            continue;
+        }   
+        
         switch (text[text_i]) {
         // match whitespace
         case ' ' :

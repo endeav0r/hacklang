@@ -47,6 +47,10 @@ char * tok_debug_string (int type) {
         return "TOK_RETURN";
     case TOK_EXPR :
         return "TOK_EXPR";
+    case TOK_MOD :
+        return "TOK_MOD";
+    case TOK_STRING :
+        return "TOK_STRING";
     case TOK_STMT :
         return "TOK_STMT";
     case TOK_COND :

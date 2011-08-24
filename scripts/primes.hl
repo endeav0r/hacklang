@@ -9,7 +9,7 @@ while i < 50
         n = n + 1
     end
     if prime == 1
-        print(i)
+        print(str(i) + "\n")
     end
     i = i + 1
 end
