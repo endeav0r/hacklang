@@ -19,6 +19,16 @@ struct var_s * var_create (int type, char * value)
         var->string = (char *) malloc(strlen(value) + 1);
         strcpy(var->string, value);
         break;
+    case TYPE_BOOL :
+        if (value == NULL)
+            var->bool = FALSE;
+        else {
+            if (strcmp(value, "true") == 0)
+                var->bool = TRUE;
+            else
+                var->bool = FALSE;
+        }
+        break;
     }
     
     return var;
@@ -239,6 +249,10 @@ void var_set (struct var_s * a, struct var_s * b)
         a->cdata = b->cdata;
         a->cdata->ref_count++;
         break;
+    case TYPE_BOOL :
+        a->type = TYPE_BOOL;
+        a->bool = b->bool;
+        break;
     }
 }
 
@@ -249,7 +263,8 @@ struct var_s * var_copy (struct var_s * src)
     
     switch (src->type) {
     case TYPE_INT :
-        r = var_create(TYPE_INT, var_to_string(src));
+        r = var_create(TYPE_INT, NULL);
+        r->i = src->i;
         break;
     case TYPE_NULL :
         r = var_create(TYPE_NULL, NULL);
@@ -267,6 +282,10 @@ struct var_s * var_copy (struct var_s * src)
         r = var_create(TYPE_CDATA, NULL);
         r->cdata = src->cdata;
         r->cdata->ref_count++;
+        break;
+    case TYPE_BOOL :
+        r = var_create(TYPE_BOOL, NULL);
+        r->bool = src->bool;
         break;
     default :
         fprintf(stderr, "var_copy on invalid type %d\n", src->type);
@@ -297,6 +316,11 @@ int var_cmp (struct var_s * a, struct var_s * b)
         return strcmp(a->string, b->string);
     case TYPE_CDATA :
         return a->cdata - b->cdata;
+    case TYPE_BOOL :
+        if (a->bool == b->bool)
+            return 0;
+        else
+            return 1;
     }
     
     fprintf(stderr, "tried to compare invalid type %d %d\n", a->type, b->type);
@@ -334,6 +358,13 @@ char * var_to_string (struct var_s * var)
     case TYPE_CDATA :
         var->string = (char *) malloc(64);
         snprintf(var->string, 64, "<cdata at %p>", var->cdata);
+        break;
+    case TYPE_BOOL :
+        var->string = (char *) malloc(16);
+        if (var->bool == TRUE)
+            snprintf(var->string, 16, "TRUE");
+        else
+            snprintf(var->string, 16, "FALSE");
         break;
     default :
         fprintf(stderr, "var_to_string on invalid type %d\n", var->type);

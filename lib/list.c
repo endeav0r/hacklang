@@ -2,11 +2,12 @@
 
 void lib_list_register (struct in_s * in)
 {
-    capi_register_function(in, lib_list_create,      "list");
-    capi_register_function(in, lib_list_append,      "list_append");
-    capi_register_function(in, lib_list_size,        "list_size");
-    capi_register_function(in, lib_list_iter_create, "iter");
-    capi_register_function(in, lib_list_iter_next,   "iter_next");
+    capi_register_function(in, lib_list_create,        "list");
+    capi_register_function(in, lib_list_append,        "list_append");
+    capi_register_function(in, lib_list_size,          "list_size");
+    capi_register_function(in, lib_list_iter_create,   "iter");
+    capi_register_function(in, lib_list_iter_next,     "iter_next");
+    capi_register_function(in, lib_list_iter_continue, "iter_continue");
 }
 
 
@@ -232,6 +233,41 @@ int lib_list_iter_next (struct capi_s * capi)
         
         var = var_copy(iter->cur->var);
         iter->cur = iter->cur->next;
+        
+        capi_pop(capi);
+        capi_push(capi, var);
+    }
+    else {
+        fprintf(stderr, "LIB_LIST_ITER: ONLY ARG MUST BE ITER (%d)\n",
+                capi_size(capi));
+        exit(-1);
+    }
+    
+    return 1;
+}
+
+
+int lib_list_iter_continue (struct capi_s * capi)
+{
+    struct var_s * var;
+    struct lib_list_iter_s * iter;
+    
+    if (capi_size(capi) == 1) {
+        if (capi_type(capi, 0) != CAPI_TYPE_CDATA) {
+            fprintf(stderr, "LIB_LIST_ITER: ONLY ARG MUST BE ITER\n");
+            exit(-1);
+        }
+        iter = (struct lib_list_iter_s *) capi_to_cdata(capi, 0);
+        if (iter->type != LIST_TYPE_ITER) {
+            fprintf(stderr, "LIB_LIST_ITER: ONLY ARG MUST BE ITER\n");
+            exit(-1);
+        }
+        
+        var = var_create(TYPE_BOOL, NULL);
+        if (iter == NULL)
+            var->bool = FALSE;
+        else
+            var->bool = TRUE;
         
         capi_pop(capi);
         capi_push(capi, var);

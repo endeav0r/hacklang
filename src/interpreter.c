@@ -66,35 +66,16 @@ struct var_s * in_stmt (struct in_s * in, struct ast_s * ast)
 int in_cond (struct in_s * in, struct ast_s * ast)
 {
     int cmp = 0;
-    struct var_s * l;
-    struct var_s * r;
+    struct var_s * var;
     
-    l = in_expr(in, ast->left);
-    r = in_expr(in, ast->right);
+    var = in_expr(in, ast);
     
-    switch (ast->subtype) {
-    case TOK_LESS :
-        if (var_cmp(l, r) < 0)
-            cmp = 1;
-        else
-            cmp = 0;
-        break;
-    case TOK_GREATER :
-        if (var_cmp(l, r) > 0)
-            cmp = 1;
-        else
-            cmp = 0;
-        break;
-    case TOK_EQUAL :
-        if (var_cmp(l, r) == 0)
-            cmp = 1;
-        else
-            cmp = 0;
-        break;
-    }
+    if (var->bool == TRUE)
+        cmp = 1;
+    else
+        cmp = 0;
     
-    var_destroy(l);
-    var_destroy(r);
+    var_destroy(var);
     
     return cmp;
 }
@@ -133,6 +114,10 @@ struct var_s * in_expr (struct in_s * in, struct ast_s * ast)
     case TOK_STRING :
         r = var_create(TYPE_STRING, ast->token->text);
         break;
+    case TOK_FALSE :
+    case TOK_TRUE :
+        r = var_create(TYPE_BOOL, ast->token->text);
+        break;
     case TOK_FUNC :
         r = in_call(in, ast);
         break;
@@ -142,6 +127,27 @@ struct var_s * in_expr (struct in_s * in, struct ast_s * ast)
             r = var_create(TYPE_NULL, "");
         else
             r = var_copy(r);
+        break;
+    case TOK_LESS :
+        r = var_create(TYPE_BOOL, NULL);
+        if (var_cmp(in_expr(in, ast->left), in_expr(in, ast->right)) < 0)
+            r->bool = TRUE;
+        else
+            r->bool = FALSE;
+        break;
+    case TOK_GREATER :
+        r = var_create(TYPE_BOOL, NULL);
+        if (var_cmp(in_expr(in, ast->left), in_expr(in, ast->right)) > 0)
+            r->bool = TRUE;
+        else
+            r->bool = FALSE;
+        break;
+    case TOK_EQUAL :
+        r = var_create(TYPE_BOOL, NULL);
+        if (var_cmp(in_expr(in, ast->left), in_expr(in, ast->right)) == 0)
+            r->bool = TRUE;
+        else
+            r->bool = FALSE;
         break;
     default :
         fprintf(stderr, "in_expr invalid type %d\n", ast->subtype);

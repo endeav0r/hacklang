@@ -28,7 +28,7 @@ char * hl_read_file (char * filename)
     filesize = ftell(fh);
     fseek(fh, 0, SEEK_SET);
     
-    printf("filesize %d\n", filesize);
+    //printf("filesize %d\n", filesize);
     
     text = (char *) malloc(filesize + 1);
     memset(text, 0, filesize + 1);
@@ -43,8 +43,6 @@ char * hl_read_file (char * filename)
 
 int main (int argc, char * argv[])
 {
-
-    int i;
     char * text;
     struct token_s * tokens;
     struct parser_s * parser;
@@ -60,6 +58,7 @@ int main (int argc, char * argv[])
     parser = parser_parse(tokens);
     
     /*
+    int i;
     printf("\nprinting AST\n");fflush(stdout);
     for (i = 0; i < parser->stack_size; i++) {
         printf("%d\n", i);

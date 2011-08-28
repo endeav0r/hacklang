@@ -4,9 +4,7 @@ list_append(li, "two")
 list_append(li, "three")
 
 it = iter(li)
-i = 0
 print("size " + str(list_size(li)) + "\n")
-while i < list_size(li)
+while iter_continue(it)
     print(str(iter_next(it)) + "\n")
-    i = i + 1
 end

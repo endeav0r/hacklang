@@ -1,14 +1,16 @@
 test = 5
 test = test + 3
+print("8 = " + str(test) + "\n")
 
 if test > 20
     test = 3
 end
-
-test2 = 5
+print("8 = " + str(test) + "\n")
 
 test3 = 0
 
 while test3 < 7
     test3 = test3 + 1
 end
+
+print("7 = " + str(test3) + "\n")

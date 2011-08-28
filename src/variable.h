@@ -13,6 +13,10 @@
 #define TYPE_CFUNC  4
 #define TYPE_STRING 5
 #define TYPE_CDATA  6
+#define TYPE_BOOL   7
+
+#define TRUE  0
+#define FALSE 1
 
 struct capi_s;
 
@@ -27,6 +31,7 @@ struct var_s {
     int type;
     union {
         int i;
+        int bool;
         struct ast_s * ast;
         int (* capi_function) (struct capi_s * capi_stack);
         struct var_cdata_s * cdata;
