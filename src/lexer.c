@@ -76,10 +76,14 @@ int lexer_keyword_match (char * text, int len)
     case 4 :
         if (strncmp("func", text, len) == 0)
             return TOK_FUNC;
+        else if (strncmp("true", text, len) == 0)
+            return TOK_TRUE;
         break;
     case 5 :
         if (strncmp("while", text, len) == 0)
             return TOK_WHILE;
+        else if (strncmp("false", text, len) == 0)
+            return TOK_FALSE;
         break;
     case 6 :
         if (strncmp("return", text, len) == 0)

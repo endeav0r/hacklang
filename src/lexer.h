@@ -28,6 +28,8 @@
 #define TOK_RETURN  21
 #define TOK_MOD     22
 #define TOK_STRING  23
+#define TOK_TRUE    24
+#define TOK_FALSE   25
 
 struct token_s {
     char * text;
