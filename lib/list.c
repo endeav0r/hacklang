@@ -231,7 +231,7 @@ int lib_list_iter_next (struct capi_s * capi)
         }
         
         var = var_copy(iter->cur->var);
-        iter->cur =iter->cur->next;
+        iter->cur = iter->cur->next;
         
         capi_pop(capi);
         capi_push(capi, var);

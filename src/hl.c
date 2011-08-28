@@ -30,12 +30,10 @@ char * hl_read_file (char * filename)
     
     printf("filesize %d\n", filesize);
     
-    text = (char *) malloc(filesize + 2);
-    memset(text, 0, filesize + 2);
-    
+    text = (char *) malloc(filesize + 1);
+    memset(text, 0, filesize + 1);
     fread(text, 1, filesize, fh);
-    text[filesize] = '\n';
-    text[filesize + 1] = (char) 0;
+    text[filesize] = (char) 0x00;
     
     fclose(fh);
     
@@ -60,11 +58,14 @@ int main (int argc, char * argv[])
     text = hl_read_file(argv[1]);
     tokens = lexer_lex(text);
     parser = parser_parse(tokens);
+    
+    /*
     printf("\nprinting AST\n");fflush(stdout);
     for (i = 0; i < parser->stack_size; i++) {
         printf("%d\n", i);
         ast_debug(parser_stack_peek(parser, i));
     }
+    */
     
     in = in_create();
     

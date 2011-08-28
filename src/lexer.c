@@ -279,5 +279,7 @@ struct token_s * lexer_lex (char * text)
         }
     }
     
+    lexer_token_append(&lexer, token_create("\n", 1, TOK_TERM));
+    
     return lexer.first;
 }    

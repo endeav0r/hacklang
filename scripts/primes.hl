@@ -1,4 +1,6 @@
 i = 2
+size = 0
+primes = list()
 while i < 50
     n = 2
     prime = 1
@@ -9,7 +11,19 @@ while i < 50
         n = n + 1
     end
     if prime == 1
-        print(str(i) + "\n")
+        size = size + 1
+        list_append(primes, i)
     end
     i = i + 1
 end
+
+it = iter(primes)
+i = 0
+while i < list_size(primes)
+    print(str(iter_next(it)))
+    i = i + 1
+    if i < list_size(primes)
+        print(", ")
+    end
+end
+print("\n")

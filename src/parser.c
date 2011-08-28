@@ -202,7 +202,7 @@ int parser_reduce (struct parser_s * parser, int lookahead)
     if (rule == -1)
         return 0;
         
-    printf("rule: %d\n", rule);
+    //printf("rule: %d\n", rule);
     
     switch (rule) {
     case RULE_EXPR_NUM :
@@ -380,8 +380,8 @@ struct parser_s * parser_parse (struct token_s * tokens)
     cur = tokens;
     while (cur != NULL) {
         parser_stack_push(parser, ast_create(cur->type, cur));
-        printf("parser stack push: %s => %s\n", tok_debug_string(cur->type), 
-               cur->text);
+        //printf("parser stack push: %s => %s\n", tok_debug_string(cur->type), 
+        //       cur->text);
         next = cur->next;
         if (next == NULL) {
             while (parser_reduce(parser, -1))
