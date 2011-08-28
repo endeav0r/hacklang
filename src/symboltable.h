@@ -10,6 +10,7 @@
 struct st_s {
     struct st_node_s * nodes;
     struct st_s * next;
+    struct st_s * top;
 };
 
 struct st_node_s {

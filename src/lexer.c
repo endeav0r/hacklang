@@ -92,7 +92,7 @@ int lexer_keyword_match (char * text, int len)
 
 // helper functions for dealing with strings like stacks
 //  (as crazy as that sounds)
-// strings are malloced/realloced in 16 + 1 byte chunks, and pushed on to
+// strings are malloced/realloced in 8 + 1 byte chunks, and pushed on to
 //  from there
 char * lexer_string_push (char * string, char c)
 {
@@ -103,8 +103,8 @@ char * lexer_string_push (char * string, char c)
         string[0] = 0;
         len = 0;
     }
-    else if ((len = strlen(string)) % 16 == 0)
-        string = realloc(string, len + 16);
+    else if ((len = strlen(string)) % 8 == 0)
+        string = realloc(string, len + 8);
     
     string[len] = c;
     string[len + 1] = 0;

@@ -30,7 +30,16 @@ void var_destroy (struct var_s * var)
     if (var->string != NULL) {
         free(var->string);
     }
-    free(var);
+    if (var->type == TYPE_CDATA) {
+        var->cdata->ref_count--;
+        if (var->cdata->ref_count == 0) {
+            var->cdata->free(var->cdata->data);
+            free(var->cdata);
+            free(var);
+        }
+    }
+    else
+        free(var);
 }
 
 
@@ -38,22 +47,42 @@ struct var_s * var_create_func (struct ast_s * ast)
 {
     struct var_s * var;
     
-    var = (struct var_s *) malloc(sizeof(struct var_s));
+    var = var_create(TYPE_FUNC, NULL);
     var->type = TYPE_FUNC;
     var->ast = ast;
-    var->string = NULL;
     
     return var;
 }
 
 
 struct var_s * var_create_capi_function (int (*capi_function)
-                                         (struct capi_stack_s *))
+                                         (struct capi_s *))
 {
     struct var_s * var;
     
     var = var_create(TYPE_CFUNC, NULL);
     var->capi_function = capi_function;
+    
+    return var;
+}
+
+
+struct var_s * var_create_cdata (void * data,
+                                 void * (* copy) (void * data),
+                                 void (* free) (void * data))
+{
+    struct var_s * var;
+    struct var_cdata_s * cdata;
+    
+    var = var_create(TYPE_CDATA, NULL);
+    cdata = (struct var_cdata_s *) malloc(sizeof(struct var_cdata_s));
+    
+    cdata->ref_count = 1;
+    cdata->data = data;
+    cdata->copy = copy;
+    cdata->free = free;
+    
+    var->cdata = cdata;
     
     return var;
 }
@@ -181,6 +210,7 @@ struct var_s * var_mod (struct var_s * a, struct var_s * b)
 
 void var_set (struct var_s * a, struct var_s * b)
 {
+
     switch (b->type) {
     case TYPE_INT :
         a->type = TYPE_INT;
@@ -203,6 +233,11 @@ void var_set (struct var_s * a, struct var_s * b)
             free(a->string);
         a->string = (char *) malloc(strlen(b->string) + 1);
         strcpy(a->string, b->string);
+        break;
+    case TYPE_CDATA :
+        a->type = TYPE_CDATA;
+        a->cdata = b->cdata;
+        a->cdata->ref_count++;
         break;
     }
 }
@@ -228,6 +263,11 @@ struct var_s * var_copy (struct var_s * src)
     case TYPE_STRING :
         r = var_create(TYPE_STRING, src->string);
         break;
+    case TYPE_CDATA :
+        r = var_create(TYPE_CDATA, NULL);
+        r->cdata = src->cdata;
+        r->cdata->ref_count++;
+        break;
     default :
         fprintf(stderr, "var_copy on invalid type %d\n", src->type);
         exit(-1);
@@ -246,23 +286,17 @@ int var_cmp (struct var_s * a, struct var_s * b)
     
     switch (a->type) {
     case TYPE_INT :
-        if (a->i < b->i)
-            return -1;
-        else if (a->i > b->i)
-            return 1;
-        return 0;
+        return a->i - b->i;
     case TYPE_NULL :
         return 0;
     case TYPE_FUNC :
-        if (a->ast == b->ast)
-            return 0;
-        return 1;
+        return a->ast - b->ast;
     case TYPE_CFUNC :
-        if (a->capi_function == b->capi_function)
-            return 0;
-        return 1;
+        return a->capi_function - b->capi_function;
     case TYPE_STRING :
         return strcmp(a->string, b->string);
+    case TYPE_CDATA :
+        return a->cdata - b->cdata;
     }
     
     fprintf(stderr, "tried to compare invalid type %d %d\n", a->type, b->type);
@@ -296,6 +330,10 @@ char * var_to_string (struct var_s * var)
     case TYPE_CFUNC :
         var->string = (char *) malloc(64);
         snprintf(var->string, 64, "<capi_function at %p>", var->capi_function);
+        break;
+    case TYPE_CDATA :
+        var->string = (char *) malloc(64);
+        snprintf(var->string, 64, "<cdata at %p>", var->cdata);
         break;
     default :
         fprintf(stderr, "var_to_string on invalid type %d\n", var->type);

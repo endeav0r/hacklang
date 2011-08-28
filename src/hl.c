@@ -9,6 +9,7 @@
 #include "variable.h"
 
 #include "../lib/standard.h"
+#include "../lib/list.h"
 
 
 char * hl_read_file (char * filename) 
@@ -68,6 +69,7 @@ int main (int argc, char * argv[])
     in = in_create();
     
     lib_standard_register(in);
+    lib_list_register(in);
     
     in_exec(in, parser_stack_peek(parser, 0));
     

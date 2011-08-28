@@ -28,7 +28,8 @@ int MATCH [PARSER_RULES][PARSER_RULES_MAXLEN] = {
 /* 23 */ {TOK_TERM, TOK_EXPR, -1},
 /* 24 */ {TOK_EXPR, TOK_MOD, TOK_EXPR, -1},
 /* 25 */ {TOK_EXPR, TOK_EQUAL, TOK_EXPR, -1},
-/* 26 */ {TOK_STRING, -1}
+/* 26 */ {TOK_STRING, -1},
+/* 27 */ {TOK_PAREN_C, TOK_PAREN_O, TOK_SYM, -1}
 };
 
 int LOOKAHEAD [PARSER_RULES][PARSER_LOOKAHEAD_MAXLEN] = {
@@ -58,7 +59,8 @@ int LOOKAHEAD [PARSER_RULES][PARSER_LOOKAHEAD_MAXLEN] = {
 /* 23 */ {-1},
 /* 24 */ {TOK_PAREN_O, -1},
 /* 25 */ {TOK_PAREN_O, TOK_ADD, TOK_MINUS, TOK_STAR, TOK_DIV, -1},
-/* 26 */ {-1}
+/* 26 */ {-1},
+/* 27 */ {-1}
 };
 
 
@@ -335,6 +337,16 @@ int parser_reduce (struct parser_s * parser, int lookahead)
         ast->type = TOK_STMT;
         ast_destroy(parser_stack_peek(parser, 0));
         parser_stack_pop(parser, 1);
+        break;
+    case RULE_EXPR_PARENC_PARENO_SYM :
+        ast = ast_create(TOK_EXPR, NULL);
+        ast->subtype = TOK_FUNC;
+        ast->left = parser_stack_peek(parser, 2);
+        ast->params = NULL;
+        ast_destroy(parser_stack_peek(parser, 0));
+        ast_destroy(parser_stack_peek(parser, 1));
+        parser_stack_pop(parser, 3);
+        parser_stack_push(parser, ast);
         break;
     }
     return 1;
