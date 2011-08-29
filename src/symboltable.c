@@ -172,15 +172,18 @@ struct st_node_s * st_node_insert (struct st_node_s * tree,
 struct st_node_s * st_node_find (struct st_node_s * tree, char * symbol)
 {
     int cmp;
-    if (tree == NULL)
-        return NULL;
-    cmp = strcmp(tree->symbol, symbol);
-    if (cmp < 0)
-        return st_node_find(tree->left, symbol);
-    if (cmp > 0)
-        return st_node_find(tree->right, symbol);
-    else
-        return tree;
+    
+    while (1) {
+        if (tree == NULL)
+            return NULL;
+        cmp = strcmp(tree->symbol, symbol);
+        if (cmp == 0)
+            return tree;
+        else if (cmp < 0)
+            tree = tree->left;
+        else if (cmp > 0)
+            tree = tree->right;
+    }
 }
 
 

@@ -9,11 +9,12 @@ struct var_s * var_create (int type, char * value)
     
     if (var_cache_i > 0)
         var = var_cache[--var_cache_i];
-    else
+    else {
         var = (struct var_s *) malloc(sizeof(struct var_s));
+        var->string = NULL;
+    }
     
     var->type = type;
-    var->string = NULL;
     switch (type) {
     case TYPE_INT :
         if (value == NULL)
@@ -50,13 +51,13 @@ void var_destroy (struct var_s * var)
             free(var->cdata);
         }
     }
-    else if (var->string != NULL)
-        free(var->string);
     
     if (var_cache_i < VAR_CACHE_SIZE)
         var_cache[var_cache_i++] = var;
-    else
+    else {
+        free(var->string);
         free(var);
+    }
 }
 
 

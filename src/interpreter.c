@@ -89,6 +89,12 @@ struct var_s * in_expr (struct in_s * in, struct ast_s * ast)
     int cmp;
     
     switch (ast->subtype) {
+    case TOK_NUM :
+        r = var_create(TYPE_INT, ast->token->text);
+        break;
+    case TOK_FUNC :
+        r = in_call(in, ast);
+        break;
     case TOK_ADD :
     case TOK_MINUS :
     case TOK_STAR :
@@ -108,12 +114,6 @@ struct var_s * in_expr (struct in_s * in, struct ast_s * ast)
             r = var_mod(a, b);
         var_destroy(a);
         var_destroy(b);
-        break;
-    case TOK_NUM :
-        r = var_create(TYPE_INT, ast->token->text);
-        break;
-    case TOK_FUNC :
-        r = in_call(in, ast);
         break;
     case TOK_SYM :
         r = st_find(in->st, ast->token->text);
