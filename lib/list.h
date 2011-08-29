@@ -28,11 +28,20 @@ struct lib_list_iter_s {
 
 void lib_list_register (struct in_s * in);
 
+
+struct lib_list_s * lib_list_api_create  ();
+void                lib_list_api_destroy (struct lib_list_s * list);
+void                lib_list_api_append  (struct lib_list_s * list,
+                                          struct var_s * var);
+int                 lib_list_api_size    (struct lib_list_s * list);
+
+
 int    lib_list_create (struct capi_s * capi);
 int    lib_list_append (struct capi_s * capi);
 int    lib_list_size   (struct capi_s * capi);
 void * lib_list_copy   (void * data);
 void   lib_list_free   (void * data);
+
 
 int    lib_list_iter_create   (struct capi_s * capi);
 int    lib_list_iter_next     (struct capi_s * capi);

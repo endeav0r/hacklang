@@ -11,17 +11,72 @@ void lib_list_register (struct in_s * in)
 }
 
 
+struct lib_list_s * lib_list_api_create ()
+{
+    struct lib_list_s * list;
+    
+    list = (struct lib_list_s *) malloc(sizeof(struct lib_list_s));
+    list->type = LIST_TYPE_LIST;
+    list->first = NULL;
+    list->last = NULL;
+    list->size = 0;
+    
+    return list;
+}
+
+
+void lib_list_api_destroy (struct lib_list_s * list)
+{
+    struct lib_list_item_s * item;
+    struct lib_list_item_s * next;
+    
+    item = list->first;
+    while (item != NULL) {
+        next = item->next;
+        var_destroy(item->var);
+        free(item);
+        item = next;
+    }
+    
+    free(list);
+}
+
+
+void lib_list_api_append (struct lib_list_s * list, struct var_s * var)
+{
+    struct lib_list_item_s * item;
+    
+    item = (struct lib_list_item_s *) malloc(sizeof(struct lib_list_item_s));
+    item->var = var;
+    item->next = NULL;
+    
+    if (list->last == NULL) {
+        item->prev = NULL;
+        list->first = item;
+        list->last = item;
+    }
+    else {
+        list->last->next = item;
+        item->prev = list->last;
+        list->last = item;
+    }
+    list->size++;
+}
+
+
+int lib_list_api_size (struct lib_list_s * list)
+{
+    return list->size;
+}
+
+
 int lib_list_create (struct capi_s * capi)
 {
     struct var_s * var;
     struct lib_list_s * list;
     
     if (capi_size(capi) == 0) {
-        list = (struct lib_list_s *) malloc(sizeof(struct lib_list_s));
-        list->type = LIST_TYPE_LIST;
-        list->first = NULL;
-        list->last = NULL;
-        list->size = 0;
+        list = lib_list_api_create();
         var = var_create_cdata(list, lib_list_copy, lib_list_free);
         capi_push(capi, var);
         return 1;
@@ -39,7 +94,6 @@ int lib_list_create (struct capi_s * capi)
 int lib_list_append (struct capi_s * capi)
 {
     struct lib_list_s * list;
-    struct lib_list_item_s * list_item;
     
     if (capi_size(capi) == 2) {
         if (capi_type(capi, 0) != CAPI_TYPE_CDATA) {
@@ -53,19 +107,7 @@ int lib_list_append (struct capi_s * capi)
             exit(-1);
         }
         
-        list_item = (struct lib_list_item_s *) malloc(sizeof(struct lib_list_item_s));
-        list_item->var = var_copy(capi_to_var(capi, 1));
-        list_item->next = NULL;
-        list_item->prev = list->last;
-        if (list->last == NULL) {
-            list->first = list_item;
-            list->last = list_item;
-        }
-        else {
-            list->last->next = list_item;
-            list->last = list_item;
-        }
-        list->size++;
+        lib_list_api_append(list, var_copy(capi_to_var(capi, 1)));
         
         capi_pop(capi);
         capi_pop(capi);
@@ -97,7 +139,7 @@ int lib_list_size (struct capi_s * capi)
         }
         
         var = var_create(TYPE_INT, NULL);
-        var->i = list->size;
+        var->i = lib_list_api_size(list);
         
         capi_pop(capi);
         capi_push(capi, var);
@@ -157,20 +199,10 @@ void * lib_list_copy (void * data)
 void lib_list_free (void * data)
 {
     struct lib_list_s * list;
-    struct lib_list_item_s * list_item;
-    struct lib_list_item_s * next;
         
     list = (struct lib_list_s *) data;
     
-    list_item = list->first;
-    while (list_item != NULL) {
-        var_destroy(list_item->var);
-        next = list_item->next;
-        free(list_item);
-        list_item = next;
-    }
-    
-    free(list);
+    lib_list_api_destroy(list);
 }
 
 
