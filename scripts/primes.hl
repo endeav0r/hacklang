@@ -1,7 +1,7 @@
 i = 2
 size = 0
 primes = list()
-while i < 50
+while i < 1000
     n = 2
     prime = 1
     while n * n < i + 1
