@@ -18,7 +18,7 @@ char * hl_read_file (char * filename)
     size_t filesize;
     char * text;
     
-    fh = fopen(filename, "r");
+    fh = fopen(filename, "rb");
     if (fh == NULL) {
         fprintf(stderr, "error opening file %s\n", filename);
         exit(-1);
