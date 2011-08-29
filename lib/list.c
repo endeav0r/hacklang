@@ -258,7 +258,7 @@ int lib_list_iter_next (struct capi_s * capi)
             exit(-1);
         }
         
-        if (iter == NULL) {
+        if (iter->cur == NULL) {
             fprintf(stderr, "LIB_LIST_ITER: CALLED NEXT ON NULL ITER\n");
             exit(-1);
         }
@@ -296,7 +296,7 @@ int lib_list_iter_continue (struct capi_s * capi)
         }
         
         var = var_create(TYPE_BOOL, NULL);
-        if (iter == NULL)
+        if (iter->cur == NULL)
             var->bool = FALSE;
         else
             var->bool = TRUE;
