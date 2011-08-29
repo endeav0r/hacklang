@@ -1,7 +1,7 @@
 #include "lexer.h"
 
 
-struct token_s * token_create (char * text, int text_len, int type)
+struct token_s * token_create (char * text, int text_len, int type, int line)
 {
     struct token_s * token;
     
@@ -10,6 +10,7 @@ struct token_s * token_create (char * text, int text_len, int type)
     memcpy(token->text, text, text_len);
     token->text[text_len] = 0;
     token->type = type;
+    token->line = line;
     token->next = NULL;
     token->prev = NULL;
     
@@ -163,7 +164,7 @@ struct token_s * lexer_lex (char * text)
                 in_string = 0;
                 lexer_token_append(&lexer,
                                    token_create(string_buf, strlen(string_buf),
-                                                TOK_STRING));
+                                                TOK_STRING, line));
                 string_buf = NULL;
                 text_i++;
                 continue;
@@ -188,66 +189,66 @@ struct token_s * lexer_lex (char * text)
             continue;
         // match newline
         case '\n' :
-            lexer_token_append(&lexer, token_create("\n", 1, TOK_TERM));
+            lexer_token_append(&lexer, token_create("\n", 1, TOK_TERM, line));
             text_i++;
             line++;
             continue;
         case '+' :
-            lexer_token_append(&lexer, token_create("+", 1, TOK_ADD));
+            lexer_token_append(&lexer, token_create("+", 1, TOK_ADD, line));
             text_i++;
             continue;
         case '=' :
             if (text[text_i+1] == '=') {
-                lexer_token_append(&lexer, token_create("==", 2, TOK_EQUAL));
+                lexer_token_append(&lexer, token_create("==", 2, TOK_EQUAL, line));
                 text_i += 2;
             }
             else {
-                lexer_token_append(&lexer, token_create("=", 1, TOK_ASSIGN));
+                lexer_token_append(&lexer, token_create("=", 1, TOK_ASSIGN, line));
                 text_i++;
             }
             continue;
         case '*' :
-            lexer_token_append(&lexer, token_create("*", 1, TOK_STAR));
+            lexer_token_append(&lexer, token_create("*", 1, TOK_STAR, line));
             text_i++;
             continue;
         case '-' :
-            lexer_token_append(&lexer, token_create("-", 1, TOK_MINUS));
+            lexer_token_append(&lexer, token_create("-", 1, TOK_MINUS, line));
             text_i++;
             continue;
         case '/' :
-            lexer_token_append(&lexer, token_create("/", 1, TOK_DIV));
+            lexer_token_append(&lexer, token_create("/", 1, TOK_DIV, line));
             text_i++;
             continue;
         case '<' :
-            lexer_token_append(&lexer, token_create("<", 1, TOK_LESS));
+            lexer_token_append(&lexer, token_create("<", 1, TOK_LESS, line));
             text_i++;
             continue;
         case '>' :
-            lexer_token_append(&lexer, token_create(">", 1, TOK_GREATER));
+            lexer_token_append(&lexer, token_create(">", 1, TOK_GREATER, line));
             text_i++;
             continue;
         case '(' :
-            lexer_token_append(&lexer, token_create("(", 1, TOK_PAREN_O));
+            lexer_token_append(&lexer, token_create("(", 1, TOK_PAREN_O, line));
             text_i++;
             continue;
         case ')' :
-            lexer_token_append(&lexer, token_create(")", 1, TOK_PAREN_C));
+            lexer_token_append(&lexer, token_create(")", 1, TOK_PAREN_C, line));
             text_i++;
             continue;
         case ',' :
-            lexer_token_append(&lexer, token_create(",", 1, TOK_COMMA));
+            lexer_token_append(&lexer, token_create(",", 1, TOK_COMMA, line));
             text_i++;
             continue;
         case '[' :
-            lexer_token_append(&lexer, token_create("[", 1, TOK_BRACK_O));
+            lexer_token_append(&lexer, token_create("[", 1, TOK_BRACK_O, line));
             text_i++;
             continue;
         case ']' :
-            lexer_token_append(&lexer, token_create("]", 1, TOK_BRACK_C));
+            lexer_token_append(&lexer, token_create("]", 1, TOK_BRACK_C, line));
             text_i++;
             continue;
         case '%' :
-            lexer_token_append(&lexer, token_create("%", 1, TOK_MOD));
+            lexer_token_append(&lexer, token_create("%", 1, TOK_MOD, line));
             text_i++;
             continue;
         }
@@ -259,11 +260,13 @@ struct token_s * lexer_lex (char * text)
                     break;
             }
             if (lexer_keyword_match(&(text[text_i]), c_i) >= 0)
-                lexer_token_append(&lexer, token_create(&(text[text_i]), c_i,
-                                   lexer_keyword_match(&(text[text_i]), c_i)));
+                lexer_token_append(&lexer,
+                                   token_create(&(text[text_i]), c_i,
+                                                lexer_keyword_match(&(text[text_i]), c_i), 
+                                                line));
             else
                 lexer_token_append(&lexer, token_create(&(text[text_i]), c_i,
-                                   TOK_SYM));
+                                                        TOK_SYM, line));
             text_i += c_i;
             continue;
         }
@@ -273,7 +276,8 @@ struct token_s * lexer_lex (char * text)
                 if (is_numeric(text[text_i + c_i]) == 0)
                     break;
             }
-            lexer_token_append(&lexer, token_create(&(text[text_i]), c_i, TOK_NUM));
+            lexer_token_append(&lexer, token_create(&(text[text_i]), c_i,
+                                                    TOK_NUM, line));
             text_i += c_i;
             continue;
         }
@@ -283,7 +287,7 @@ struct token_s * lexer_lex (char * text)
         }
     }
     
-    lexer_token_append(&lexer, token_create("\n", 1, TOK_TERM));
+    lexer_token_append(&lexer, token_create("\n", 1, TOK_TERM, line));
     
     return lexer.first;
 }    

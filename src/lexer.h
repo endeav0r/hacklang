@@ -36,6 +36,7 @@
 struct token_s {
     char * text;
     int type;
+    int line;
     struct token_s * next;
     struct token_s * prev;
 };
