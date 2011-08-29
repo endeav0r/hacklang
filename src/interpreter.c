@@ -39,7 +39,7 @@ struct var_s * in_stmt (struct in_s * in, struct ast_s * ast)
             in_assign(in, ast);
         else if (ast->subtype == TOK_BRANCH) {
             if (in_cond(in, ast->condition))
-                in_stmt(in, ast->block);
+                var_destroy(in_stmt(in, ast->block));
         }
         else if (ast->subtype == TOK_LOOP) {
             while (in_cond(in, ast->condition)) {
@@ -56,7 +56,7 @@ struct var_s * in_stmt (struct in_s * in, struct ast_s * ast)
             var_destroy(in_call(in, ast));
         }
         else if (ast->block != NULL)
-            in_stmt(in, ast->block);
+            var_destroy(in_stmt(in, ast->block));
         ast = ast->next;
     }
     return var_create(TYPE_NULL, NULL);
@@ -86,6 +86,7 @@ struct var_s * in_expr (struct in_s * in, struct ast_s * ast)
     struct var_s * a;
     struct var_s * b;
     struct var_s * r;
+    int cmp;
     
     switch (ast->subtype) {
     case TOK_ADD :
@@ -97,10 +98,10 @@ struct var_s * in_expr (struct in_s * in, struct ast_s * ast)
         b = in_expr(in, ast->right);
         if (ast->subtype == TOK_ADD)
             r = var_add(a, b);
-        else if (ast->subtype == TOK_MINUS)
-            r = var_sub(a, b);
         else if (ast->subtype == TOK_STAR)
             r = var_mul(a, b);
+        else if (ast->subtype == TOK_MINUS)
+            r = var_sub(a, b);
         else if (ast->subtype == TOK_DIV)
             r = var_div(a, b);
         else
@@ -110,13 +111,6 @@ struct var_s * in_expr (struct in_s * in, struct ast_s * ast)
         break;
     case TOK_NUM :
         r = var_create(TYPE_INT, ast->token->text);
-        break;
-    case TOK_STRING :
-        r = var_create(TYPE_STRING, ast->token->text);
-        break;
-    case TOK_FALSE :
-    case TOK_TRUE :
-        r = var_create(TYPE_BOOL, ast->token->text);
         break;
     case TOK_FUNC :
         r = in_call(in, ast);
@@ -128,26 +122,40 @@ struct var_s * in_expr (struct in_s * in, struct ast_s * ast)
         else
             r = var_copy(r);
         break;
-    case TOK_LESS :
-        r = var_create(TYPE_BOOL, NULL);
-        if (var_cmp(in_expr(in, ast->left), in_expr(in, ast->right)) < 0)
-            r->bool = TRUE;
-        else
-            r->bool = FALSE;
-        break;
     case TOK_GREATER :
-        r = var_create(TYPE_BOOL, NULL);
-        if (var_cmp(in_expr(in, ast->left), in_expr(in, ast->right)) > 0)
-            r->bool = TRUE;
-        else
-            r->bool = FALSE;
-        break;
+    case TOK_LESS :
     case TOK_EQUAL :
         r = var_create(TYPE_BOOL, NULL);
-        if (var_cmp(in_expr(in, ast->left), in_expr(in, ast->right)) == 0)
-            r->bool = TRUE;
-        else
-            r->bool = FALSE;
+        a = in_expr(in, ast->left);
+        b = in_expr(in, ast->right);
+        cmp = var_cmp(a, b);
+        if (ast->subtype == TOK_GREATER) {
+            if (cmp > 0)
+                r->bool = TRUE;
+            else
+                r->bool = FALSE;
+        }
+        else if (ast->subtype == TOK_EQUAL) {
+            if (cmp == 0)
+                r->bool = TRUE;
+            else
+                r->bool = FALSE;
+        }
+        else if (ast->subtype == TOK_LESS) {
+            if (cmp < 0)
+                r->bool = TRUE;
+            else
+                r->bool = FALSE;
+        }
+        var_destroy(a);
+        var_destroy(b);
+        break;
+    case TOK_STRING :
+        r = var_create(TYPE_STRING, ast->token->text);
+        break;
+    case TOK_FALSE :
+    case TOK_TRUE :
+        r = var_create(TYPE_BOOL, ast->token->text);
         break;
     default :
         fprintf(stderr, "in_expr invalid type %d\n", ast->subtype);
