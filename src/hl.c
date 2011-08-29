@@ -23,10 +23,12 @@ char * hl_read_file (char * filename)
         fprintf(stderr, "error opening file %s\n", filename);
         exit(-1);
     }
-    
     fseek(fh, 0, SEEK_END);
     filesize = ftell(fh);
     fseek(fh, 0, SEEK_SET);
+    fclose(fh);
+    
+    fh = fopen(filename, "r");
     
     //printf("filesize %d\n", filesize);
     
