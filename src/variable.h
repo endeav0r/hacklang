@@ -18,6 +18,8 @@
 #define TRUE  0
 #define FALSE 1
 
+#define VAR_CACHE_SIZE 32
+
 struct capi_s;
 
 struct var_cdata_s {

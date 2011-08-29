@@ -1,10 +1,16 @@
 #include "variable.h"
 
+struct var_s * var_cache [VAR_CACHE_SIZE];
+int var_cache_i = 0;
+
 struct var_s * var_create (int type, char * value)
 {
     struct var_s * var;
     
-    var = (struct var_s *) malloc(sizeof(struct var_s));
+    if (var_cache_i > 0)
+        var = var_cache[--var_cache_i];
+    else
+        var = (struct var_s *) malloc(sizeof(struct var_s));
     
     var->type = type;
     var->string = NULL;
@@ -37,17 +43,18 @@ struct var_s * var_create (int type, char * value)
 
 void var_destroy (struct var_s * var)
 {
-    if (var->string != NULL) {
-        free(var->string);
-    }
     if (var->type == TYPE_CDATA) {
         var->cdata->ref_count--;
         if (var->cdata->ref_count == 0) {
             var->cdata->free(var->cdata->data);
             free(var->cdata);
-            free(var);
         }
     }
+    else if (var->string != NULL)
+        free(var->string);
+    
+    if (var_cache_i < VAR_CACHE_SIZE)
+        var_cache[var_cache_i++] = var;
     else
         free(var);
 }
