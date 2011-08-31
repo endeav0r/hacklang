@@ -89,11 +89,15 @@ struct var_s * in_expr (struct in_s * in, struct ast_s * ast)
     int cmp;
     
     switch (ast->subtype) {
+    case TOK_SYM :
+        r = st_find_scoped(in->st, ast->token->text);
+        if (r == NULL)
+            r = var_create(TYPE_NULL, "");
+        else
+            r = var_copy(r);
+        break;
     case TOK_NUM :
         r = var_create(TYPE_INT, ast->token->text);
-        break;
-    case TOK_FUNC :
-        r = in_call(in, ast);
         break;
     case TOK_ADD :
     case TOK_MINUS :
@@ -102,25 +106,25 @@ struct var_s * in_expr (struct in_s * in, struct ast_s * ast)
     case TOK_MOD :
         a = in_expr(in, ast->left);
         b = in_expr(in, ast->right);
-        if (ast->subtype == TOK_ADD)
+        switch (ast->subtype) {
+        case TOK_ADD :
             r = var_add(a, b);
-        else if (ast->subtype == TOK_STAR)
+            break;
+        case TOK_STAR :
             r = var_mul(a, b);
-        else if (ast->subtype == TOK_MINUS)
+            break;
+        case TOK_MINUS :
             r = var_sub(a, b);
-        else if (ast->subtype == TOK_DIV)
+            break;
+        case TOK_DIV :
             r = var_div(a, b);
-        else
+            break;
+        default :
             r = var_mod(a, b);
+            break;
+        }
         var_destroy(a);
         var_destroy(b);
-        break;
-    case TOK_SYM :
-        r = st_find(in->st, ast->token->text);
-        if (r == NULL)
-            r = var_create(TYPE_NULL, "");
-        else
-            r = var_copy(r);
         break;
     case TOK_GREATER :
     case TOK_LESS :
@@ -149,6 +153,9 @@ struct var_s * in_expr (struct in_s * in, struct ast_s * ast)
         }
         var_destroy(a);
         var_destroy(b);
+        break;
+    case TOK_FUNC :
+        r = in_call(in, ast);
         break;
     case TOK_STRING :
         r = var_create(TYPE_STRING, ast->token->text);

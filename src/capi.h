@@ -33,15 +33,17 @@ void capi_register_function (struct in_s * in,
 
 struct capi_s *       capi_create    ();
 void                  capi_destroy   (struct capi_s * capi);
+struct capi_stack_s * capi_peek      (struct capi_s * capi, int depth);
+
+// user functions
+void                  capi_pop       (struct capi_s * capi);
 void                  capi_push      (struct capi_s * capi, struct var_s * var);
 void                  capi_push_top  (struct capi_s * capi, struct var_s * var);
-void                  capi_pop       (struct capi_s * capi);
 int                   capi_size      (struct capi_s * capi);
 int                   capi_type      (struct capi_s * capi, int depth);
-struct capi_stack_s * capi_peek      (struct capi_s * capi, int depth);
+void *                capi_to_cdata  (struct capi_s * capi, int depth);
 int                   capi_to_int    (struct capi_s * capi, int depth);
 char *                capi_to_string (struct capi_s * capi, int depth);
-void *                capi_to_cdata  (struct capi_s * capi, int depth);
 struct var_s *        capi_to_var    (struct capi_s * capi, int depth);
 
 #endif

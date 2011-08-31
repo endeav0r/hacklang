@@ -2,9 +2,10 @@
 
 void lib_standard_register (struct in_s * in)
 {
-    capi_register_function(in, lib_standard_fread, "fread");
-    capi_register_function(in, lib_standard_print, "print");
-    capi_register_function(in, lib_standard_str,   "str");
+    capi_register_function(in, lib_standard_fread,  "fread");
+    capi_register_function(in, lib_standard_print,  "print");
+    capi_register_function(in, lib_standard_str,    "str");
+    capi_register_function(in, lib_standard_strlen, "strlen");
 }
 
 
@@ -31,6 +32,80 @@ int lib_standard_str (struct capi_s * capi)
     return 0;
 }
 
+
+int lib_standard_strlen (struct capi_s * capi)
+{
+    char * string;
+    struct var_s * var;
+    
+    if (capi_size(capi) == 1) {
+        if (capi_type(capi, 0) == CAPI_TYPE_STRING)
+            string = capi_to_string(capi, 0);
+        else {
+            fprintf(stderr, "LIB_STANDARD_STRLEN: FIRST ARG MUST BE STRING\n");
+            exit(-1);
+        }
+        
+        var = var_create(TYPE_INT, NULL);
+        var->i = strlen(string);
+        
+        capi_pop(capi);
+        capi_push(capi, var);
+    }
+    else {
+        fprintf(stderr, "LIB_STANDARD_PRINT: TAKES ONE ARGUMENT (%d)\n",
+                capi_size(capi));
+        exit(-1);
+    }
+    
+    return 0;
+}
+
+/*
+int lib_standard_substr (struct capi_s * capi)
+{
+    char * string;
+    int start;
+    int end;
+    int len;
+    struct var_s * result;
+    if (capi_size(capi) == 3) {
+        if (capi_type(capi, 0) == CAPI_TYPE_STRING)
+            string = capi_to_string(capi, 0);
+        else {
+            fprintf("LIB_STANDARD_STRLEN: FIRST ARG MUST BE STRING\n");
+            exit(-1);
+        }
+        if (capi_type(capi, 1) == CAPI_TYPE_INT)
+            start = capi_to_int(capi, 1);
+        else {
+            fprintf("LIB_STANDARD_STRLEN: SECOND ARG MUST BE INT\n");
+            exit(-1);
+        }
+        if (capi_type(capi, 2) == CAPI_TYPE_INT)
+            end = capi_to_int(capi, 2);
+        else {
+            fprintf("LIB_STANDARD_STRLEN: THIRD ARG MUST BE INT\n");
+            exit(-1);
+        }
+        
+        len = strlen(string);
+        
+        var = var_create(TYPE_INT, NULL);
+        var->i = len;
+        
+        capi_pop(capi);
+        capi_push(capi, var);
+    }
+    else {
+        fprintf(stderr, "LIB_STANDARD_PRINT: TOO MANY ARGUMENTS (%d)\n",
+                capi_size(capi));
+        exit(-1);
+    }
+    
+    return 0;
+}
+*/
 
 int lib_standard_print (struct capi_s * capi)
 {

@@ -20,7 +20,7 @@ struct var_s * var_create (int type, char * value)
         if (value == NULL)
             var->i = 0;
         else
-            var->i = strtoul(value, NULL, 0);
+            var->i = atoi(value);
         break;
     case TYPE_STRING :
         var->string = (char *) malloc(strlen(value) + 1);
