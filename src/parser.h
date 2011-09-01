@@ -4,7 +4,9 @@
 #include "ast.h"
 #include "debug.h"
 
-#define PARSER_RULES             31
+#define PARSER_DEBUG 0
+
+#define PARSER_RULES             34
 #define PARSER_RULES_MAXLEN      8
 #define PARSER_LOOKAHEAD_MAXLEN  16
 
@@ -39,6 +41,9 @@
 #define RULE_EXPR_TRUE                           28
 #define RULE_EXPR_FALSE                          29
 #define RULE_STMT_TERM_EXPR                      30
+#define RULE_ELSEBLOCK_END_STMT_ELSE             31
+#define RULE_STMT_END_ELSEBLOCK_STMT_EXPR_IF     32
+#define RULE_ELSE_TERM_ELSE                      33
 
 struct parser_stack_s {
     struct ast_s * ast;

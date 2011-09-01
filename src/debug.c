@@ -52,6 +52,12 @@ char * tok_debug_string (int type)
         return "TOK_MOD";
     case TOK_STRING :
         return "TOK_STRING";
+    case TOK_TRUE :
+        return "TOK_TRUE";
+    case TOK_FALSE :
+        return "TOK_FALSE";
+    case TOK_ELSE :
+        return "TOK_ELSE";
     case TOK_STMT :
         return "TOK_STMT";
     case TOK_COND :
@@ -66,6 +72,8 @@ char * tok_debug_string (int type)
         return "TOK_LOOP";
     case TOK_PARAMLIST :
         return "TOK_PARAMLIST";
+    case TOK_INVALID :
+        return "TOK_INVALID";
     }
     return "TOK_UNKNOWN";
 }

@@ -24,7 +24,7 @@ struct st_node_s {
 
 struct st_s *  st_create  ();
 void           st_destroy (struct st_s * st);
-struct st_s *  st_push    (struct st_s * st);
+struct st_s *  st_push    (struct st_s * st, struct st_s * node);
 struct st_s *  st_pop     (struct st_s * st);
 void           st_insert  (struct st_s * st, char * symbol, struct var_s * var);
 struct var_s * st_find    (struct st_s * st, char * symbol);

@@ -30,6 +30,7 @@
 #define TOK_STRING  23
 #define TOK_TRUE    24
 #define TOK_FALSE   25
+#define TOK_ELSE    26
 
 #define TOK_INVALID 10001
 

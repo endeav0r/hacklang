@@ -14,6 +14,7 @@ struct ast_s * ast_create (int type, struct token_s * token)
     ast->condition = NULL;
     ast->next = NULL;
     ast->block = NULL;
+    ast->elseblock = NULL;
     ast->params = NULL;
     
     return ast;

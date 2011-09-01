@@ -57,16 +57,26 @@ int main (int argc, char * argv[])
     
     text = hl_read_file(argv[1]);
     tokens = lexer_lex(text);
-    parser = parser_parse(tokens);
     
     /*
+    struct token_s * next;
+    next = tokens;
+    while (next != NULL) {
+        printf("%s\n", tok_debug_string(next->type));
+        next = next->next;
+    }
+    */
+    
+    parser = parser_parse(tokens);
+    
+    
     int i;
     printf("\nprinting AST\n");fflush(stdout);
     for (i = 0; i < parser->stack_size; i++) {
         printf("%d\n", i);
         ast_debug(parser_stack_peek(parser, i));
     }
-    */
+    
     
     in = in_create();
     

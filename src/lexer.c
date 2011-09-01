@@ -79,6 +79,8 @@ int lexer_keyword_match (char * text, int len)
             return TOK_FUNC;
         else if (strncmp("true", text, len) == 0)
             return TOK_TRUE;
+        else if (strncmp("else", text, len) == 0)
+            return TOK_ELSE;
         break;
     case 5 :
         if (strncmp("while", text, len) == 0)
@@ -108,8 +110,8 @@ char * lexer_string_push (char * string, char c)
         string[0] = 0;
         len = 0;
     }
-    else if ((len = strlen(string)) % 8 == 0)
-        string = realloc(string, len + 8);
+    else if ((len = strlen(string)) % 16 == 0)
+        string = realloc(string, len + 16);
     
     string[len] = c;
     string[len + 1] = 0;
@@ -165,6 +167,7 @@ struct token_s * lexer_lex (char * text)
                 lexer_token_append(&lexer,
                                    token_create(string_buf, strlen(string_buf),
                                                 TOK_STRING, line));
+                free(string_buf);
                 string_buf = NULL;
                 text_i++;
                 continue;
@@ -212,9 +215,12 @@ struct token_s * lexer_lex (char * text)
             text_i++;
             continue;
         case '-' :
-            lexer_token_append(&lexer, token_create("-", 1, TOK_MINUS, line));
-            text_i++;
-            continue;
+            if ((text[text_i+1] > '9') && (text[text_i+1] < '0')) {
+                lexer_token_append(&lexer, token_create("-", 1, TOK_MINUS, line));
+                text_i++;
+                continue;
+            }
+            break;
         case '/' :
             lexer_token_append(&lexer, token_create("/", 1, TOK_DIV, line));
             text_i++;
@@ -271,7 +277,7 @@ struct token_s * lexer_lex (char * text)
             continue;
         }
         // match numeric
-        if (is_numeric(text[text_i])) {
+        if ((text[text_i] == '-') || (is_numeric(text[text_i]))) {
             for (c_i = 1; c_i < strlen(text) - text_i; c_i++) {
                 if (is_numeric(text[text_i + c_i]) == 0)
                     break;

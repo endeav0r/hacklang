@@ -1,5 +1,21 @@
-test = 5
+tests = list()
 
-print(test)
+list_append(tests, "aabbababbaa")
+list_append(tests, "aabbabaabbaa")
+list_append(tests, "amanaplanacanalpanama")
 
-print(fread("build.bat"))
+func test_anagram (string)
+    if strlen(string) < 2
+        return true
+    end
+    if substr(string, 0, 0) == substr(string, -1, -1)
+        return test_anagram(substr(string, 1, -2))
+    end
+    return false
+end
+
+it = iter(tests)
+while (iter_continue(it))
+    string = iter_next(it)
+    print("test_anagram(\"" + string + "\") = " + str(test_anagram(string)) + "\n")
+end

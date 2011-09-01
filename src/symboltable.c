@@ -24,15 +24,14 @@ void st_destroy (struct st_s * st)
 }
 
 
-struct st_s * st_push (struct st_s * st)
+struct st_s * st_push (struct st_s * st, struct st_s * node)
 {
-    struct st_s * new = st_create();
-    new->next = st;
+    node->next = st;
     if (st == NULL)
-        new->top = new;
+        node->top = node;
     else
-        new->top = st->top;
-    return new;
+        node->top = st->top;
+    return node;
 }
 
 

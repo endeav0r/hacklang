@@ -3,36 +3,39 @@
 // reverse order
 int MATCH [PARSER_RULES][PARSER_RULES_MAXLEN] = {
 /* 00 */ {TOK_NUM,     -1},
-/* 01 */ {TOK_EXPR,    TOK_ADD,     TOK_EXPR, -1},
-/* 02 */ {TOK_EXPR,    TOK_ASSIGN,  TOK_EXPR, -1},
+/* 01 */ {TOK_EXPR,    TOK_ADD,       TOK_EXPR, -1},
+/* 02 */ {TOK_EXPR,    TOK_ASSIGN,    TOK_EXPR, -1},
 /* 03 */ {TOK_SYM,     -1},
-/* 04 */ {TOK_TERM,    TOK_STMT,    -1},
-/* 05 */ {TOK_STMT,    TOK_STMT,    -1},
-/* 06 */ {TOK_EXPR,    TOK_MINUS,   TOK_EXPR, -1},
-/* 07 */ {TOK_EXPR,    TOK_STAR,    TOK_EXPR, -1},
-/* 08 */ {TOK_EXPR,    TOK_DIV,     TOK_EXPR, -1},
-/* 09 */ {TOK_EXPR,    TOK_LESS,    TOK_EXPR, -1},
-/* 10 */ {TOK_EXPR,    TOK_GREATER, TOK_EXPR, -1},
-/* 11 */ {TOK_END,     TOK_STMT,    TOK_EXPR, TOK_IF, -1},
-/* 12 */ {TOK_TERM,    TOK_EXPR,    TOK_IF, -1},
-/* 13 */ {TOK_END,     TOK_STMT,    TOK_EXPR, TOK_WHILE, -1},
-/* 14 */ {TOK_PAREN_C, TOK_EXPR,    TOK_PAREN_O, TOK_SYM, -1},
-/* 15 */ {TOK_PAREN_C, TOK_EXPR,    TOK_PAREN_O, -1},
-/* 16 */ {TOK_EXPR,    TOK_COMMA,   TOK_EXPR, -1},
-/* 17 */ {TOK_PAREN_C, TOK_PARAM,   TOK_PAREN_O, -1},
-/* 18 */ {TOK_EXPR,    TOK_COMMA,   TOK_PARAM, -1},
-/* 19 */ {TOK_END,     TOK_STMT,    TOK_PARAMLIST, TOK_SYM, TOK_FUNC, -1},
-/* 20 */ {TOK_PARAMLIST, TOK_SYM,   -1},
+/* 04 */ {TOK_TERM,    TOK_STMT,      -1},
+/* 05 */ {TOK_STMT,    TOK_STMT,      -1},
+/* 06 */ {TOK_EXPR,    TOK_MINUS,     TOK_EXPR, -1},
+/* 07 */ {TOK_EXPR,    TOK_STAR,      TOK_EXPR, -1},
+/* 08 */ {TOK_EXPR,    TOK_DIV,       TOK_EXPR, -1},
+/* 09 */ {TOK_EXPR,    TOK_LESS,      TOK_EXPR, -1},
+/* 10 */ {TOK_EXPR,    TOK_GREATER,   TOK_EXPR, -1},
+/* 11 */ {TOK_END,     TOK_STMT,      TOK_EXPR, TOK_IF, -1},
+/* 12 */ {TOK_TERM,    TOK_EXPR,      TOK_IF, -1},
+/* 13 */ {TOK_END,     TOK_STMT,      TOK_EXPR, TOK_WHILE, -1},
+/* 14 */ {TOK_PAREN_C, TOK_EXPR,      TOK_PAREN_O, TOK_SYM, -1},
+/* 15 */ {TOK_PAREN_C, TOK_EXPR,      TOK_PAREN_O, -1},
+/* 16 */ {TOK_EXPR,    TOK_COMMA,     TOK_EXPR, -1},
+/* 17 */ {TOK_PAREN_C, TOK_PARAM,     TOK_PAREN_O, -1},
+/* 18 */ {TOK_EXPR,    TOK_COMMA,     TOK_PARAM, -1},
+/* 19 */ {TOK_END,     TOK_STMT,      TOK_PARAMLIST, TOK_SYM, TOK_FUNC, -1},
+/* 20 */ {TOK_PARAMLIST, TOK_SYM,     -1},
 /* 21 */ {TOK_TERM,    TOK_PARAMLIST, -1},
-/* 22 */ {TOK_EXPR,    TOK_RETURN,  -1},
-/* 23 */ {TOK_TERM,    TOK_EXPR,    TOK_WHILE, -1},
-/* 24 */ {TOK_EXPR,    TOK_MOD,     TOK_EXPR, -1},
-/* 25 */ {TOK_EXPR,    TOK_EQUAL,   TOK_EXPR, -1},
+/* 22 */ {TOK_EXPR,    TOK_RETURN,    -1},
+/* 23 */ {TOK_TERM,    TOK_EXPR,      TOK_WHILE, -1},
+/* 24 */ {TOK_EXPR,    TOK_MOD,       TOK_EXPR, -1},
+/* 25 */ {TOK_EXPR,    TOK_EQUAL,     TOK_EXPR, -1},
 /* 26 */ {TOK_STRING,  -1},
-/* 27 */ {TOK_PAREN_C, TOK_PAREN_O, TOK_SYM, -1},
+/* 27 */ {TOK_PAREN_C, TOK_PAREN_O,   TOK_SYM, -1},
 /* 28 */ {TOK_TRUE,    -1},
 /* 29 */ {TOK_FALSE,   -1},
-/* 30 */ {TOK_TERM,    TOK_EXPR,    -1}
+/* 30 */ {TOK_TERM,    TOK_EXPR,      -1},
+/* 31 */ {TOK_END,     TOK_STMT,      TOK_ELSE, -1},
+/* 32 */ {TOK_END,     TOK_ELSEBLOCK, TOK_STMT, TOK_EXPR, TOK_IF, -1},
+/* 33 */ {TOK_TERM,    TOK_ELSE,      -1}
 };
 
 int LOOKAHEAD [PARSER_RULES][PARSER_LOOKAHEAD_MAXLEN] = {
@@ -66,7 +69,10 @@ int LOOKAHEAD [PARSER_RULES][PARSER_LOOKAHEAD_MAXLEN] = {
 /* 27 */ {-1},
 /* 28 */ {-1},
 /* 29 */ {-1},
-/* 30 */ {-1}
+/* 30 */ {-1},
+/* 31 */ {-1},
+/* 32 */ {-1},
+/* 33 */ {-1}
 };
 
 
@@ -216,8 +222,10 @@ int parser_reduce (struct parser_s * parser, int lookahead)
     
     if (rule == -1)
         return 0;
-        
-    //printf("rule: %d\n", rule);
+    
+    #if PARSER_DEBUG == 1
+        printf("rule: %d\n", rule);
+    #endif
     
     switch (rule) {
     case RULE_EXPR_NUM :
@@ -258,6 +266,7 @@ int parser_reduce (struct parser_s * parser, int lookahead)
     case RULE_PARAMLIST_TERM_PARAMLIST :
     case RULE_IF_TERM_EXPR_IF :
     case RULE_WHILE_TERM_EXPR_WHILE :
+    case RULE_ELSE_TERM_ELSE :
         ast_destroy(parser_stack_peek(parser, 0));
         parser_stack_pop(parser, 1);
         break;
@@ -358,6 +367,25 @@ int parser_reduce (struct parser_s * parser, int lookahead)
         parser_stack_pop(parser, 3);
         parser_stack_push(parser, ast);
         break;
+    case RULE_ELSEBLOCK_END_STMT_ELSE :
+        ast = parser_stack_peek(parser, 2);
+        ast->type = TOK_ELSEBLOCK;
+        ast->block = parser_stack_peek(parser, 1);
+        ast = parser_stack_peek(parser, 0);
+        parser_stack_pop(parser, 2);
+        parser_stack_push(parser, ast);
+        break;
+    case RULE_STMT_END_ELSEBLOCK_STMT_EXPR_IF :
+        ast = parser_stack_peek(parser, 4);
+        ast->subtype = TOK_BRANCH;
+        ast->type = TOK_STMT;
+        ast->condition = parser_stack_peek(parser, 3);
+        ast->block = parser_stack_peek(parser, 2);
+        ast->elseblock = parser_stack_peek(parser, 1);
+        ast_destroy(parser_stack_peek(parser, 0));
+        parser_stack_pop(parser, 4);
+        break;
+        
     }
     return 1;
 }
@@ -390,8 +418,10 @@ struct parser_s * parser_parse (struct token_s * tokens)
     cur = tokens;
     while (cur != NULL) {
         parser_stack_push(parser, ast_create(cur->type, cur));
-        //printf("parser stack push: %s => %s\n", tok_debug_string(cur->type), 
-        //       cur->text);
+        #if PARSER_DEBUG == 1
+            printf("parser stack push: %s => %s\n", tok_debug_string(cur->type), 
+                   cur->text);
+        #endif
         next = cur->next;
         if (next == NULL) {
             while (parser_reduce(parser, -1))

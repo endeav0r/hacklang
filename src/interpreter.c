@@ -22,11 +22,14 @@ void in_destroy (struct in_s * in)
 
 int in_exec (struct in_s * in, struct ast_s * ast)
 {
+    struct var_s * ret;
     if (ast->type != TOK_STMT) {
         fprintf(stderr, "interpreter not given statement ast\n");
         exit(-1);
     }
-    var_destroy(in_stmt(in, ast));
+    ret = in_stmt(in, ast);
+    if (ret)
+        var_destroy(ret);
     
     return 0;
 }
@@ -34,16 +37,27 @@ int in_exec (struct in_s * in, struct ast_s * ast)
 
 struct var_s * in_stmt (struct in_s * in, struct ast_s * ast)
 {
+    struct var_s * ret;
     while (ast != NULL) {
         if (ast->subtype == TOK_ASSIGN)
             in_assign(in, ast);
         else if (ast->subtype == TOK_BRANCH) {
-            if (in_cond(in, ast->condition))
-                var_destroy(in_stmt(in, ast->block));
+            if (in_cond(in, ast->condition)) {
+                ret = in_stmt(in, ast->block);
+                if (ret)
+                    return ret;
+            }
+            else {
+                ret = in_stmt(in, ast->elseblock);
+                if (ret)
+                    return ret;
+            }
         }
         else if (ast->subtype == TOK_LOOP) {
             while (in_cond(in, ast->condition)) {
-                var_destroy(in_stmt(in, ast->block));
+                ret = in_stmt(in, ast->block);
+                if (ret)
+                    return ret;
             }
         }
         else if (ast->subtype == TOK_FUNCDEC) {
@@ -55,11 +69,14 @@ struct var_s * in_stmt (struct in_s * in, struct ast_s * ast)
         else if (ast->subtype == TOK_FUNC) {
             var_destroy(in_call(in, ast));
         }
-        else if (ast->block != NULL)
-            var_destroy(in_stmt(in, ast->block));
+        else if (ast->block != NULL) {
+            ret = in_stmt(in, ast->block);
+            if (ret)
+                return ret;
+        }
         ast = ast->next;
     }
-    return var_create(TYPE_NULL, NULL);
+    return NULL;
 }
 
 
@@ -204,6 +221,7 @@ struct var_s * in_call (struct in_s * in, struct ast_s * ast)
     struct ast_s * func_ast;
     struct ast_s * caller_param;
     struct ast_s * callee_param;
+    struct st_s  * st;
     
     // get function from symbol table
     func_var = st_find(in->st, ast->left->token->text);
@@ -220,10 +238,10 @@ struct var_s * in_call (struct in_s * in, struct ast_s * ast)
         return capi_call(in, ast);
     }
     
-    // push symbol table/stack frame
-    in->st = st_push(in->st);
+    // create new symbol table/stack frame for this function
+    st = st_create();
     
-    // set params
+    // set params inside the new stack frame
     caller_param = ast->params;
     callee_param = func_ast->params;
     while (callee_param != NULL) {
@@ -233,10 +251,13 @@ struct var_s * in_call (struct in_s * in, struct ast_s * ast)
             exit(-1);
         }
         param_var = in_expr(in, caller_param);
-        st_insert(in->st, callee_param->token->text, param_var);
+        st_insert(st, callee_param->token->text, param_var);
         caller_param = caller_param->next;
         callee_param = callee_param->next;
     }
+    
+    // push new stack frame onto stack
+    in->st = st_push(in->st, st);
     
     // execute statements and get return value
     ret_var = in_stmt(in, func_ast->block);
