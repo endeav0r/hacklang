@@ -6,6 +6,7 @@ void lib_standard_register (struct in_s * in)
     capi_register_function(in, lib_standard_print,  "print");
     capi_register_function(in, lib_standard_str,    "str");
     capi_register_function(in, lib_standard_strlen, "strlen");
+    capi_register_function(in, lib_standard_substr, "substr");
 }
 
 
@@ -42,7 +43,8 @@ int lib_standard_strlen (struct capi_s * capi)
         if (capi_type(capi, 0) == CAPI_TYPE_STRING)
             string = capi_to_string(capi, 0);
         else {
-            fprintf(stderr, "LIB_STANDARD_STRLEN: FIRST ARG MUST BE STRING\n");
+            fprintf(stderr, "LIB_STANDARD_STRLEN: ARG MUST BE STRING (%d)\n",
+                    capi_type(capi, 0));
             exit(-1);
         }
         
@@ -51,6 +53,8 @@ int lib_standard_strlen (struct capi_s * capi)
         
         capi_pop(capi);
         capi_push(capi, var);
+        
+        return 1;
     }
     else {
         fprintf(stderr, "LIB_STANDARD_PRINT: TAKES ONE ARGUMENT (%d)\n",
@@ -61,51 +65,86 @@ int lib_standard_strlen (struct capi_s * capi)
     return 0;
 }
 
-/*
+
 int lib_standard_substr (struct capi_s * capi)
 {
     char * string;
+    char * new_string;
     int start;
     int end;
     int len;
-    struct var_s * result;
+    struct var_s * var;
     if (capi_size(capi) == 3) {
         if (capi_type(capi, 0) == CAPI_TYPE_STRING)
             string = capi_to_string(capi, 0);
         else {
-            fprintf("LIB_STANDARD_STRLEN: FIRST ARG MUST BE STRING\n");
+            fprintf(stderr, "LIB_STANDARD_SUBSTR: FIRST ARG MUST BE STRING (%d)\n",
+                    capi_type(capi, 0));
             exit(-1);
         }
         if (capi_type(capi, 1) == CAPI_TYPE_INT)
             start = capi_to_int(capi, 1);
         else {
-            fprintf("LIB_STANDARD_STRLEN: SECOND ARG MUST BE INT\n");
+            fprintf(stderr, "LIB_STANDARD_SUBSTR: SECOND ARG MUST BE INT\n");
             exit(-1);
         }
         if (capi_type(capi, 2) == CAPI_TYPE_INT)
             end = capi_to_int(capi, 2);
         else {
-            fprintf("LIB_STANDARD_STRLEN: THIRD ARG MUST BE INT\n");
+            fprintf(stderr, "LIB_STANDARD_SUBSTR: THIRD ARG MUST BE INT\n");
             exit(-1);
         }
         
         len = strlen(string);
         
-        var = var_create(TYPE_INT, NULL);
-        var->i = len;
+        if (start < 0)
+            start = len + start;
+        if (start < 0) {
+            fprintf(stderr,
+                    "LIB_STANDARD_SUBSTR: START IS BEFORE BEGINNING OF STRING\n");
+            exit(-1);
+        }
+        if (start >= len) {
+            fprintf(stderr, "LIB_STANDARD_SUBSTR: START GREATER THAN STRLEN\n");
+            exit(-1);
+        }
+        
+        if (end < 0)
+            end = len + end;
+        if (end < 0) {
+            fprintf(stderr,
+                    "LIB_STANDARD_SUBSTR: END IS BEFORE BEGINNING OF STRING\n");
+            exit(-1);
+        }
+        if (end >= len) {
+            fprintf(stderr, "LIB_STANDARD_SUBSTR: END IS BEYOND STRLEN\n");
+            exit(-1);
+        }
+        if (end < start) {
+            fprintf(stderr, "LIB_STANDARD_SUBSTR: END CANNOT COME BEFORE START\n");
+            exit(-1);
+        }
+        
+        new_string = (char *) malloc(end - start + 2);
+        strncpy(new_string, &(string[start]), end - start + 1);
+        new_string[end - start + 1] = (char) 0x00;
+        
+        var = var_create(TYPE_STRING, new_string);
         
         capi_pop(capi);
         capi_push(capi, var);
+        
+        return 1;
     }
     else {
-        fprintf(stderr, "LIB_STANDARD_PRINT: TOO MANY ARGUMENTS (%d)\n",
+        fprintf(stderr, "LIB_STANDARD_SUBSTR: SUBSTR TAKES 3 ARGUMENTS (%d)\n",
                 capi_size(capi));
         exit(-1);
     }
     
     return 0;
 }
-*/
+
 
 int lib_standard_print (struct capi_s * capi)
 {

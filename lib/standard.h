@@ -13,5 +13,6 @@ int lib_standard_fread  (struct capi_s * capi);
 int lib_standard_print  (struct capi_s * capi);
 int lib_standard_str    (struct capi_s * capi);
 int lib_standard_strlen (struct capi_s * capi);
+int lib_standard_substr (struct capi_s * capi);
 
 #endif
