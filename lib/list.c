@@ -249,17 +249,17 @@ int lib_list_iter_next (struct capi_s * capi)
     
     if (capi_size(capi) == 1) {
         if (capi_type(capi, 0) != CAPI_TYPE_CDATA) {
-            fprintf(stderr, "LIB_LIST_ITER: ONLY ARG MUST BE ITER\n");
+            fprintf(stderr, "LIB_LIST_ITER_NEXT: ONLY ARG MUST BE ITER\n");
             exit(-1);
         }
         iter = (struct lib_list_iter_s *) capi_to_cdata(capi, 0);
         if (iter->type != LIST_TYPE_ITER) {
-            fprintf(stderr, "LIB_LIST_ITER: ONLY ARG MUST BE ITER\n");
+            fprintf(stderr, "LIB_LIST_ITER_NEXT: ONLY ARG MUST BE ITER\n");
             exit(-1);
         }
         
         if (iter->cur == NULL) {
-            fprintf(stderr, "LIB_LIST_ITER: CALLED NEXT ON NULL ITER\n");
+            fprintf(stderr, "LIB_LIST_ITER_NEXT: CALLED NEXT ON NULL ITER\n");
             exit(-1);
         }
         
@@ -270,7 +270,7 @@ int lib_list_iter_next (struct capi_s * capi)
         capi_push(capi, var);
     }
     else {
-        fprintf(stderr, "LIB_LIST_ITER: ONLY ARG MUST BE ITER (%d)\n",
+        fprintf(stderr, "LIB_LIST_ITER_NEXT: ONLY ARG MUST BE ITER (%d)\n",
                 capi_size(capi));
         exit(-1);
     }
@@ -286,12 +286,12 @@ int lib_list_iter_continue (struct capi_s * capi)
     
     if (capi_size(capi) == 1) {
         if (capi_type(capi, 0) != CAPI_TYPE_CDATA) {
-            fprintf(stderr, "LIB_LIST_ITER: ONLY ARG MUST BE ITER\n");
+            fprintf(stderr, "LIB_LIST_ITER_CONTINUE: ONLY ARG MUST BE ITER\n");
             exit(-1);
         }
         iter = (struct lib_list_iter_s *) capi_to_cdata(capi, 0);
         if (iter->type != LIST_TYPE_ITER) {
-            fprintf(stderr, "LIB_LIST_ITER: ONLY ARG MUST BE ITER\n");
+            fprintf(stderr, "LIB_LIST_ITER_CONTINUE: ONLY ARG MUST BE ITER\n");
             exit(-1);
         }
         
@@ -305,7 +305,7 @@ int lib_list_iter_continue (struct capi_s * capi)
         capi_push(capi, var);
     }
     else {
-        fprintf(stderr, "LIB_LIST_ITER: ONLY ARG MUST BE ITER (%d)\n",
+        fprintf(stderr, "LIB_LIST_ITER_CONTINUE: ONLY ARG MUST BE ITER (%d)\n",
                 capi_size(capi));
         exit(-1);
     }
