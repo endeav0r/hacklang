@@ -307,7 +307,8 @@ struct var_s * var_copy (struct var_s * src)
 int var_cmp (struct var_s * a, struct var_s * b)
 {
     if (a->type != b->type) {
-        fprintf(stderr, "comparing variables of different type\n");
+        fprintf(stderr, "comparing variables of different type\n%s <-> %s\n",
+                var_to_string(a), var_to_string(b));
         exit(-1);
     }
     
