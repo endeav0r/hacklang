@@ -1,0 +1,48 @@
+/*******************************************************************************
+*    HHH   HHH     AAA     CCCCCCC KKK  KK LL          A    N    NN    GGGG    *
+*     H     H      A A      CC     K   KK  LL         A A   NN    N   GG  G    *
+*    H     H      A   A    CC      KK KK   LL        A   A  N N   N  GG        *
+*     HHHHHHH    AA   AA   CC      KKKK    LL        AAAAA  N  N  N GG         *
+*      H   H     A AAA A   CC      KK KK   LL       A     A NN  NNN GG   GGG   *
+*     H     H   A       A   CC     K   KK  LL    LL  A   A  N    NN  GG  GG    *
+*    HHH   HHH A         A CCCCCCC KK   KK LLLLLLLL A     A NN    N   GGGGG    *
+*******************************************************************************/
+
+endeavormac at gmail dot com
+
+// ABOUT
+//////////
+
+    HACKLANG is an interpreted scripting language I work on from time to time.
+My main goal is not to create a scripting language for general use, but to learn
+more about implementing interpreted languages and the difficulties usually
+encountered therein. Often times the best way to learn is to do.
+
+// GOALS
+//////////
+
+    - Remain easy to modify and change (stay "hackable"). Often times I add
+      features/rules to the interpreter in 5 minutes.
+      
+    - Keep a simple, easy-to-use C API.
+    
+    - Keep the interpreter simple and implement as much functionality as
+      possible through the C API.
+      
+    - Be able to accomplish many of the simple tasks I encounter on a day-to-day
+      basis.
+    
+    - Simple, minimalist syntax
+
+// NOT GOALS
+//////////////
+
+    - Backwards compatibility
+    
+    - Speed (to a reasonable degree)
+
+// BUILD
+//////////
+
+    As on this writing, build.bat is a simple batch file to compile and link
+hacklang with mingw for Windows.
