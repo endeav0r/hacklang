@@ -67,7 +67,9 @@ struct var_s * in_stmt (struct in_s * in, struct ast_s * ast)
             return in_expr(in, ast->block);
         }
         else if (ast->subtype == TOK_FUNC) {
-            var_destroy(in_call(in, ast));
+            ret = in_call(in, ast);
+            if (ret)
+                var_destroy(ret);
         }
         else if (ast->block != NULL) {
             ret = in_stmt(in, ast->block);
@@ -146,27 +148,36 @@ struct var_s * in_expr (struct in_s * in, struct ast_s * ast)
     case TOK_GREATER :
     case TOK_LESS :
     case TOK_EQUAL :
+    case TOK_NEQUAL :
         r = var_create(TYPE_BOOL, NULL);
         a = in_expr(in, ast->left);
         b = in_expr(in, ast->right);
         cmp = var_cmp(a, b);
-        if (ast->subtype == TOK_GREATER) {
+        switch (ast->subtype) {
+        case TOK_GREATER :
             if (cmp > 0)
                 r->bool = TRUE;
             else
                 r->bool = FALSE;
-        }
-        else if (ast->subtype == TOK_EQUAL) {
+            break;
+        case TOK_EQUAL :
             if (cmp == 0)
                 r->bool = TRUE;
             else
                 r->bool = FALSE;
-        }
-        else if (ast->subtype == TOK_LESS) {
+            break;
+        case TOK_LESS :
             if (cmp < 0)
                 r->bool = TRUE;
             else
                 r->bool = FALSE;
+            break;
+        case TOK_NEQUAL :
+            if (cmp == 0)
+                r->bool = FALSE;
+            else
+                r->bool = TRUE;
+            break;
         }
         var_destroy(a);
         var_destroy(b);
@@ -200,7 +211,7 @@ void in_assign (struct in_s * in, struct ast_s * ast)
         exit(-1);
     }
     
-    l = st_find(in->st, ast->left->token->text);
+    l = st_find_scoped(in->st, ast->left->token->text);
     if (l == NULL) {
         l = var_create(TYPE_NULL, "");
         st_insert(in->st, ast->left->token->text, l);
@@ -224,7 +235,7 @@ struct var_s * in_call (struct in_s * in, struct ast_s * ast)
     struct st_s  * st;
     
     // get function from symbol table
-    func_var = st_find(in->st, ast->left->token->text);
+    func_var = st_find_scoped(in->st, ast->left->token->text);
     if (func_var == NULL) {
         fprintf(stderr, "called non-existant function %s\n",
                 ast->left->token->text);

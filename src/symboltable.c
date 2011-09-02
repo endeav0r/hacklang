@@ -8,7 +8,7 @@ struct st_s * st_create ()
     st = (struct st_s *) malloc(sizeof(struct st_s));
     st->nodes = NULL;
     st->next = NULL;
-    st->top = NULL;
+    st->top = st;
     
     return st;
 }
@@ -27,10 +27,7 @@ void st_destroy (struct st_s * st)
 struct st_s * st_push (struct st_s * st, struct st_s * node)
 {
     node->next = st;
-    if (st == NULL)
-        node->top = node;
-    else
-        node->top = st->top;
+    node->top = st->top;
     return node;
 }
 
@@ -103,7 +100,12 @@ struct var_s * st_find_scoped (struct st_s * st, char * symbol)
     node = st_node_find(st->nodes, symbol);
     if (node != NULL)
         return node->var;
-    return st_find_scoped(st->top, symbol);
+
+    node = st_node_find(st->top->nodes, symbol);
+    if (node != NULL)
+        return node->var;
+
+    return NULL;
 }
 
 

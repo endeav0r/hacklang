@@ -19,3 +19,18 @@ while (iter_continue(it))
     string = iter_next(it)
     print("test_anagram(\"" + string + "\") = " + str(test_anagram(string)) + "\n")
 end
+
+test_for_split = "one,two,three,nineteen"
+split = str_split(test_for_split, ",")
+it = iter(split)
+while iter_continue(it)
+    print(iter_next(it) + "\n")
+end
+
+test_for_split = "hello"
+split = str_split(test_for_split, "")
+it = iter(split)
+while iter_continue(it)
+    print(iter_next(it) + "\n")
+end
+

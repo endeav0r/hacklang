@@ -73,8 +73,11 @@ struct var_s * capi_call (struct in_s * in, struct ast_s * ast)
     }
     
     capi_ret_val = func_var->capi_function(capi);
-    
-    if (capi_ret_val == 1)
+    if (capi_ret_val == -1) {
+        fprintf(stderr, "line: %d\n", ast->token->line);
+        exit(-1);
+    }
+    else if (capi_ret_val == 1)
         ret_var = capi->stack->var;
     else
         ret_var = var_create(TYPE_NULL, NULL);

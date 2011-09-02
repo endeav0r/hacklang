@@ -8,6 +8,7 @@ void lib_list_register (struct in_s * in)
     capi_register_function(in, lib_list_iter_create,   "iter");
     capi_register_function(in, lib_list_iter_next,     "iter_next");
     capi_register_function(in, lib_list_iter_continue, "iter_continue");
+    capi_register_function(in, lib_list_str_split,     "str_split");
 }
 
 
@@ -286,12 +287,12 @@ int lib_list_iter_continue (struct capi_s * capi)
     
     if (capi_size(capi) == 1) {
         if (capi_type(capi, 0) != CAPI_TYPE_CDATA) {
-            fprintf(stderr, "LIB_LIST_ITER_CONTINUE: ONLY ARG MUST BE ITER\n");
+            fprintf(stderr, "LIB_LIST_ITER_CONTINUE0: ONLY ARG MUST BE ITER\n");
             exit(-1);
         }
         iter = (struct lib_list_iter_s *) capi_to_cdata(capi, 0);
         if (iter->type != LIST_TYPE_ITER) {
-            fprintf(stderr, "LIB_LIST_ITER_CONTINUE: ONLY ARG MUST BE ITER\n");
+            fprintf(stderr, "LIB_LIST_ITER_CONTINUE1: ONLY ARG MUST BE ITER\n");
             exit(-1);
         }
         
@@ -305,7 +306,7 @@ int lib_list_iter_continue (struct capi_s * capi)
         capi_push(capi, var);
     }
     else {
-        fprintf(stderr, "LIB_LIST_ITER_CONTINUE: ONLY ARG MUST BE ITER (%d)\n",
+        fprintf(stderr, "LIB_LIST_ITER_CONTINUE2: ONLY ARG MUST BE ITER (%d)\n",
                 capi_size(capi));
         exit(-1);
     }
@@ -335,4 +336,80 @@ void * lib_list_iter_copy (void * data)
 void lib_list_iter_free (void * data)
 {
     free(data);
+}
+
+
+int lib_list_str_split (struct capi_s * capi) {
+    struct lib_list_s * list;
+    struct var_s * var;
+    char * needle;
+    char * haystack;
+    char * new_string;
+    int len;
+    int needle_len;
+    
+    char * h;
+    char * n;
+    char * substr_start;
+    
+    if (capi_size(capi) == 2) {
+        if (    (capi_type(capi, 0) != CAPI_TYPE_STRING)
+             || (capi_type(capi, 1) != CAPI_TYPE_STRING)) {
+            fprintf(stderr, "LIB_LIST_STR_SPLIT: TAKES 2 ARGS TYPE STRING\n");
+            exit(-1);
+        }
+        haystack = capi_to_string(capi, 0);
+        needle   = capi_to_string(capi, 1);
+        
+        list = lib_list_api_create();
+        
+    
+        needle_len = strlen(needle);
+        h = haystack;
+        n = needle;
+        substr_start = haystack;
+        
+        while (*h != '\0') {
+            if (*h == *n)
+                n++;
+            else
+                n = needle;
+            
+            h++;
+            if (*n == '\0') {
+                len = h - substr_start - needle_len;
+                new_string = (char *) malloc(len + 1);
+                strncpy(new_string, substr_start, len);
+                new_string[len] = '\0';
+                var = var_create(TYPE_STRING, new_string);
+                lib_list_api_append(list, var);
+                n = needle;
+                substr_start = h;
+            }
+        }
+        
+        if (*substr_start != '\0') {
+            len = h - substr_start;
+            new_string = (char *) malloc(len + 1);
+            strncpy(new_string, substr_start, len);
+            new_string[len] = '\0';
+            var = var_create(TYPE_STRING, new_string);
+            lib_list_api_append(list, var);
+        }
+        
+        var = var_create_cdata(list, lib_list_copy, lib_list_free);
+        
+        capi_pop(capi);
+        capi_pop(capi);
+        capi_push(capi, var);
+        
+        return 1;
+    }
+    else {
+        fprintf(stderr, "LIB_LIST_STR_SPLIT: TAKES 2 ARGS TYPE STRING (%d)\n",
+                capi_size(capi));
+        exit(-1);
+    }
+    
+    return 0;
 }

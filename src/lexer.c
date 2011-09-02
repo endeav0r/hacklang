@@ -106,12 +106,12 @@ char * lexer_string_push (char * string, char c)
     int len;
     
     if (string == NULL) {
-        string = (char *) malloc(17);
+        string = (char *) malloc(33);
         string[0] = 0;
         len = 0;
     }
-    else if ((len = strlen(string)) % 16 == 0)
-        string = realloc(string, len + 16);
+    else if ((len = strlen(string)) % 32 == 0)
+        string = realloc(string, len + 33);
     
     string[len] = c;
     string[len + 1] = 0;
@@ -127,6 +127,8 @@ struct token_s * lexer_lex (char * text)
     int c_i;
     int line = 1;
     int text_i;
+    
+    int comment = 0;
     
     struct lexer_s lexer;
     
@@ -164,9 +166,12 @@ struct token_s * lexer_lex (char * text)
             }
             else if (text[text_i] == '"') {
                 in_string = 0;
-                lexer_token_append(&lexer,
-                                   token_create(string_buf, strlen(string_buf),
-                                                TOK_STRING, line));
+                if (string_buf == NULL)
+                    lexer_token_append(&lexer, token_create("", 0, TOK_STRING, line));
+                else
+                    lexer_token_append(&lexer,
+                                       token_create(string_buf, strlen(string_buf),
+                                                    TOK_STRING, line));
                 free(string_buf);
                 string_buf = NULL;
                 text_i++;
@@ -178,11 +183,24 @@ struct token_s * lexer_lex (char * text)
                 continue;
             }
         }
-        else if (text[text_i] == '"') {
+        
+        if (comment) {
+            if (text[text_i] == '\n')
+                comment = 0;
+            text_i++;
+            continue;
+        }
+        else if (text[text_i] == '#') {
+            comment = 1;
+            text_i++;
+            continue;
+        }
+        
+        if (text[text_i] == '"') {
             in_string = 1;
             text_i++;
             continue;
-        }   
+        }
         
         switch (text[text_i]) {
         // match whitespace
@@ -190,7 +208,7 @@ struct token_s * lexer_lex (char * text)
         case '\t' :
             text_i++;
             continue;
-        // match newline
+        case ';' :
         case '\n' :
             lexer_token_append(&lexer, token_create("\n", 1, TOK_TERM, line));
             text_i++;
@@ -210,6 +228,12 @@ struct token_s * lexer_lex (char * text)
                 text_i++;
             }
             continue;
+        case '!' :
+            if (text[text_i+1] == '=') {
+                lexer_token_append(&lexer, token_create("!=", 2, TOK_NEQUAL, line));
+                text_i += 2;
+                continue;
+            }
         case '*' :
             lexer_token_append(&lexer, token_create("*", 1, TOK_STAR, line));
             text_i++;

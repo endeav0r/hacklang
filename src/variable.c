@@ -44,19 +44,25 @@ struct var_s * var_create (int type, char * value)
 
 void var_destroy (struct var_s * var)
 {
-    if (var->type == TYPE_CDATA) {
-        var->cdata->ref_count--;
-        if (var->cdata->ref_count == 0) {
-            var->cdata->free(var->cdata->data);
-            free(var->cdata);
-        }
-    }
+    if (var->type == TYPE_CDATA)
+        var_destroy_cdata(var);
     
     if (var_cache_i < VAR_CACHE_SIZE)
         var_cache[var_cache_i++] = var;
     else {
         free(var->string);
         free(var);
+    }
+}
+
+
+// doesn't destroy the actual variable, just cdata (if needed)
+void var_destroy_cdata (struct var_s * var)
+{
+    var->cdata->ref_count--;
+    if (var->cdata->ref_count == 0) {
+        var->cdata->free(var->cdata->data);
+        free(var->cdata);
     }
 }
 
@@ -228,16 +234,9 @@ struct var_s * var_mod (struct var_s * a, struct var_s * b)
 
 void var_set (struct var_s * a, struct var_s * b)
 {
-
-    switch (a->type) {
-    case TYPE_STRING :
-        free(a->string);
-        break;
-    case TYPE_CDATA :
-        var_destroy(a);
-        a = var_create(TYPE_NULL, NULL);
-        break;
-    }
+    
+    if (a->type == TYPE_CDATA)
+        var_destroy_cdata(a);
 
     switch (b->type) {
     case TYPE_INT :

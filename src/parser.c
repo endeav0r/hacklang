@@ -35,7 +35,8 @@ int MATCH [PARSER_RULES][PARSER_RULES_MAXLEN] = {
 /* 30 */ {TOK_TERM,    TOK_EXPR,      -1},
 /* 31 */ {TOK_END,     TOK_STMT,      TOK_ELSE, -1},
 /* 32 */ {TOK_END,     TOK_ELSEBLOCK, TOK_STMT, TOK_EXPR, TOK_IF, -1},
-/* 33 */ {TOK_TERM,    TOK_ELSE,      -1}
+/* 33 */ {TOK_TERM,    TOK_ELSE,      -1},
+/* 34 */ {TOK_EXPR,    TOK_NEQUAL,    TOK_EXPR, -1}
 };
 
 int LOOKAHEAD [PARSER_RULES][PARSER_LOOKAHEAD_MAXLEN] = {
@@ -72,7 +73,8 @@ int LOOKAHEAD [PARSER_RULES][PARSER_LOOKAHEAD_MAXLEN] = {
 /* 30 */ {-1},
 /* 31 */ {-1},
 /* 32 */ {-1},
-/* 33 */ {-1}
+/* 33 */ {-1},
+/* 34 */ {TOK_PAREN_O, TOK_ADD, TOK_MINUS, TOK_STAR, TOK_DIV, -1}
 };
 
 
@@ -245,6 +247,7 @@ int parser_reduce (struct parser_s * parser, int lookahead)
     case RULE_EXPR_EXPR_LESS_EXPR :
     case RULE_EXPR_EXPR_GREATER_EXPR :
     case RULE_EXPR_EXPR_EQUAL_EXPR :
+    case RULE_EXPR_EXPR_NEQUAL_EXPR :
         ast = parser_stack_peek(parser, 1);
         ast->subtype = ast->type;
         ast->type = TOK_EXPR;

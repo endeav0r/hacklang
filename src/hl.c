@@ -8,8 +8,9 @@
 #include "symboltable.h"
 #include "variable.h"
 
-#include "../lib/standard.h"
 #include "../lib/list.h"
+#include "../lib/stack.h"
+#include "../lib/standard.h"
 
 
 char * hl_read_file (char * filename) 
@@ -69,19 +70,20 @@ int main (int argc, char * argv[])
     
     parser = parser_parse(tokens);
     
-    
+    /*
     int i;
     printf("\nprinting AST\n");fflush(stdout);
     for (i = 0; i < parser->stack_size; i++) {
         printf("%d\n", i);
         ast_debug(parser_stack_peek(parser, i));
     }
-    
+    */
     
     in = in_create();
     
     lib_standard_register(in);
     lib_list_register(in);
+    lib_stack_register(in);
     
     in_exec(in, parser_stack_peek(parser, 0));
     

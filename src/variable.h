@@ -45,6 +45,7 @@ struct var_s {
 
 struct var_s * var_create               (int type, char * value);
 void           var_destroy              (struct var_s * var);
+void           var_destroy_cdata        (struct var_s * var);
 struct var_s * var_create_func          (struct ast_s * ast);
 struct var_s * var_create_capi_function (int (*capi_function) (struct capi_s *));
 struct var_s * var_create_cdata         (void * data,

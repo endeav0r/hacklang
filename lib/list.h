@@ -42,11 +42,12 @@ int    lib_list_size   (struct capi_s * capi);
 void * lib_list_copy   (void * data);
 void   lib_list_free   (void * data);
 
-
 int    lib_list_iter_create   (struct capi_s * capi);
 int    lib_list_iter_next     (struct capi_s * capi);
 int    lib_list_iter_continue (struct capi_s * capi);
 void * lib_list_iter_copy (void * data);
 void   lib_list_iter_free (void * data);
+
+int    lib_list_str_split (struct capi_s * capi);
 
 #endif

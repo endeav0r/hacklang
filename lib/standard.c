@@ -154,6 +154,7 @@ int lib_standard_print (struct capi_s * capi)
     }
     else if (capi_size(capi) == 1) {
         printf("%s", capi_to_string(capi, 0));
+        fflush(stdout);
         capi_pop(capi);
     }
     else {
