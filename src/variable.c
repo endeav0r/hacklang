@@ -229,6 +229,16 @@ struct var_s * var_mod (struct var_s * a, struct var_s * b)
 void var_set (struct var_s * a, struct var_s * b)
 {
 
+    switch (a->type) {
+    case TYPE_STRING :
+        free(a->string);
+        break;
+    case TYPE_CDATA :
+        var_destroy(a);
+        a = var_create(TYPE_NULL, NULL);
+        break;
+    }
+
     switch (b->type) {
     case TYPE_INT :
         a->type = TYPE_INT;
