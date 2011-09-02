@@ -127,6 +127,7 @@ struct token_s * lexer_lex (char * text)
     int c_i;
     int line = 1;
     int text_i;
+    int strlen_text;
     
     int comment = 0;
     
@@ -138,7 +139,8 @@ struct token_s * lexer_lex (char * text)
     text_i = 0;
     in_string = 0;
     string_buf = NULL;
-    while (text_i < strlen(text)) {
+    strlen_text = strlen(text);
+    while (text_i < strlen_text) {
         // string handling
         if (in_string) {
             if (text[text_i] == '\\') {
@@ -199,6 +201,36 @@ struct token_s * lexer_lex (char * text)
         if (text[text_i] == '"') {
             in_string = 1;
             text_i++;
+            continue;
+        }
+        
+        // match symbol
+        if (is_alpha(text[text_i])) {
+            for (c_i = 1; c_i < strlen(text) - text_i; c_i++) {
+                if (    (is_alpha  (text[text_i + c_i]) == 0)
+                     && (is_numeric(text[text_i + c_i]) == 0))
+                    break;
+            }
+            if (lexer_keyword_match(&(text[text_i]), c_i) >= 0)
+                lexer_token_append(&lexer,
+                                   token_create(&(text[text_i]), c_i,
+                                                lexer_keyword_match(&(text[text_i]), c_i), 
+                                                line));
+            else
+                lexer_token_append(&lexer, token_create(&(text[text_i]), c_i,
+                                                        TOK_SYM, line));
+            text_i += c_i;
+            continue;
+        }
+        // match numeric
+        if ((text[text_i] == '-') || (is_numeric(text[text_i]))) {
+            for (c_i = 1; c_i < strlen(text) - text_i; c_i++) {
+                if (is_numeric(text[text_i + c_i]) == 0)
+                    break;
+            }
+            lexer_token_append(&lexer, token_create(&(text[text_i]), c_i,
+                                                    TOK_NUM, line));
+            text_i += c_i;
             continue;
         }
         
@@ -282,39 +314,8 @@ struct token_s * lexer_lex (char * text)
             text_i++;
             continue;
         }
-        // match symbol
-        if (is_alpha(text[text_i])) {
-            for (c_i = 1; c_i < strlen(text) - text_i; c_i++) {
-                if (    (is_alpha  (text[text_i + c_i]) == 0)
-                     && (is_numeric(text[text_i + c_i]) == 0))
-                    break;
-            }
-            if (lexer_keyword_match(&(text[text_i]), c_i) >= 0)
-                lexer_token_append(&lexer,
-                                   token_create(&(text[text_i]), c_i,
-                                                lexer_keyword_match(&(text[text_i]), c_i), 
-                                                line));
-            else
-                lexer_token_append(&lexer, token_create(&(text[text_i]), c_i,
-                                                        TOK_SYM, line));
-            text_i += c_i;
-            continue;
-        }
-        // match numeric
-        if ((text[text_i] == '-') || (is_numeric(text[text_i]))) {
-            for (c_i = 1; c_i < strlen(text) - text_i; c_i++) {
-                if (is_numeric(text[text_i + c_i]) == 0)
-                    break;
-            }
-            lexer_token_append(&lexer, token_create(&(text[text_i]), c_i,
-                                                    TOK_NUM, line));
-            text_i += c_i;
-            continue;
-        }
-        else {
-            fprintf(stderr, "UNKNOWN SYMBOL LINE %d\n", line);
-            exit(-1);
-        }
+        fprintf(stderr, "UNKNOWN SYMBOL LINE %d\n", line);
+        exit(-1);
     }
     
     lexer_token_append(&lexer, token_create("\n", 1, TOK_TERM, line));
