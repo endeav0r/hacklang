@@ -1,7 +1,7 @@
 #include "variable.h"
 
 struct var_s * var_cache [VAR_CACHE_SIZE];
-int var_cache_i = 0;
+int            var_cache_i = 0;
 
 struct var_s * var_create (int type, char * value)
 {
@@ -23,6 +23,8 @@ struct var_s * var_create (int type, char * value)
             var->i = atoi(value);
         break;
     case TYPE_STRING :
+        if (var->string != NULL)
+            free(var->string);
         var->string = (char *) malloc(strlen(value) + 1);
         strcpy(var->string, value);
         break;
@@ -50,7 +52,8 @@ void var_destroy (struct var_s * var)
     if (var_cache_i < VAR_CACHE_SIZE)
         var_cache[var_cache_i++] = var;
     else {
-        free(var->string);
+        if (var->string != NULL)
+            free(var->string);
         free(var);
     }
 }
@@ -354,7 +357,6 @@ char * var_to_string (struct var_s * var)
         
     if (var->string != NULL)
         free(var->string);
-    var->string = NULL;
         
     switch (var->type) {
     case TYPE_INT :

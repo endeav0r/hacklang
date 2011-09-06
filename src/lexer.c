@@ -87,6 +87,8 @@ int lexer_keyword_match (char * text, int len)
             return TOK_WHILE;
         else if (strncmp("false", text, len) == 0)
             return TOK_FALSE;
+        else if (strncmp("elsif", text, len) == 0)
+            return TOK_ELSIF;
         break;
     case 6 :
         if (strncmp("return", text, len) == 0)

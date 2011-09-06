@@ -115,9 +115,6 @@ struct var_s * in_expr (struct in_s * in, struct ast_s * ast)
         else
             r = var_copy(r);
         break;
-    case TOK_NUM :
-        r = var_create(TYPE_INT, ast->token->text);
-        break;
     case TOK_ADD :
     case TOK_MINUS :
     case TOK_STAR :
@@ -144,6 +141,9 @@ struct var_s * in_expr (struct in_s * in, struct ast_s * ast)
         }
         var_destroy(a);
         var_destroy(b);
+        break;
+    case TOK_NUM :
+        r = var_create(TYPE_INT, ast->token->text);
         break;
     case TOK_GREATER :
     case TOK_LESS :

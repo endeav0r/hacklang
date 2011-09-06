@@ -5,35 +5,40 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define TOK_NUM     1
-#define TOK_SYM     2
-#define TOK_ADD     3
-#define TOK_TERM    4
-#define TOK_ASSIGN  5
-#define TOK_STAR    6
-#define TOK_MINUS   7
-#define TOK_DIV     8
-#define TOK_IF      9
-#define TOK_END     10
-#define TOK_LESS    11
-#define TOK_GREATER 12
-#define TOK_WHILE   13
-#define TOK_EQUAL   14
-#define TOK_PAREN_O 15
-#define TOK_PAREN_C 16
-#define TOK_COMMA   17
-#define TOK_BRACK_O 18
-#define TOK_BRACK_C 19
-#define TOK_FUNC    20
-#define TOK_RETURN  21
-#define TOK_MOD     22
-#define TOK_STRING  23
-#define TOK_TRUE    24
-#define TOK_FALSE   25
-#define TOK_ELSE    26
-#define TOK_NEQUAL  27
+#define TOK_NUM     0x01
+#define TOK_SYM     0x02
+#define TOK_STRING  0x03
+#define TOK_TERM    0x04
+#define TOK_ASSIGN  0x05
+#define TOK_TRUE    0x06
+#define TOK_FALSE   0x07
+#define TOK_PAREN_O 0x08
+#define TOK_PAREN_C 0x09
 
-#define TOK_INVALID 10001
+#define TOK_ADD     0x10
+#define TOK_MINUS   0x11
+#define TOK_STAR    0x12
+#define TOK_DIV     0x13
+#define TOK_MOD     0x14
+
+#define TOK_IF      0x20
+#define TOK_ELSE    0x21
+#define TOK_ELSIF   0x22
+#define TOK_WHILE   0x23
+#define TOK_FUNC    0x24
+#define TOK_RETURN  0x25
+#define TOK_END     0x26
+
+#define TOK_GREATER 0x30
+#define TOK_LESS    0x31
+#define TOK_EQUAL   0x32
+#define TOK_NEQUAL  0x33
+
+#define TOK_COMMA   0x40
+#define TOK_BRACK_O 0x41
+#define TOK_BRACK_C 0x42
+
+#define TOK_INVALID 0x43
 
 struct token_s {
     char * text;

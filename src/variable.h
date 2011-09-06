@@ -20,7 +20,7 @@
 
 
 // must be divisible by 2
-#define VAR_CACHE_SIZE 32
+#define VAR_CACHE_SIZE 64
 
 struct capi_s;
 

@@ -60,6 +60,10 @@ char * tok_debug_string (int type)
         return "TOK_ELSE";
     case TOK_STMT :
         return "TOK_STMT";
+    case TOK_NEQUAL :
+        return "TOK_NEQUAL";
+    case TOK_ELSIF :
+        return "TOK_ELSIF";
     case TOK_COND :
         return "TOK_COND";
     case TOK_BRANCH :
@@ -72,6 +76,8 @@ char * tok_debug_string (int type)
         return "TOK_LOOP";
     case TOK_PARAMLIST :
         return "TOK_PARAMLIST";
+    case TOK_ELSEBLOCK :
+        return "TOK_ELSEBLOCK";
     case TOK_INVALID :
         return "TOK_INVALID";
     }
