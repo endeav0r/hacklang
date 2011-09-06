@@ -7,12 +7,10 @@ func get_depth (string)
     while loop
         if iter_continue(it) == false
             loop = false
+        elsif iter_next(it) == " "
+            depth = depth + 1
         else
-            if iter_next(it) == " "
-                depth = depth + 1
-            else
-                loop = false
-            end
+            loop = false
         end
     end
     
@@ -28,12 +26,10 @@ func has_char (string)
     while loop
         if iter_continue(it) == false
             loop = false
+        elsif iter_next(it) == " "
+            loop = true
         else
-            if iter_next(it) == " "
-                loop = true
-            else
-                return true
-            end
+            return true
         end
     end
     
