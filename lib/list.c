@@ -52,13 +52,11 @@ void lib_list_api_append (struct lib_list_s * list, struct var_s * var)
     item->next = NULL;
     
     if (list->last == NULL) {
-        item->prev = NULL;
         list->first = item;
         list->last = item;
     }
     else {
         list->last->next = item;
-        item->prev = list->last;
         list->last = item;
     }
     list->size++;
@@ -177,7 +175,6 @@ void * lib_list_copy (void * data)
     if (list->first != NULL) {
         new_list_item_prev = (struct lib_list_item_s *) malloc(sizeof(struct lib_list_item_s));
         new_list_item_prev->var = var_copy(list->first->var);
-        new_list_item_prev->prev = NULL;
         new_list_item_prev->next = NULL;
         new_list->first = new_list_item_prev;
         new_list->last = new_list_item_prev;
@@ -187,7 +184,6 @@ void * lib_list_copy (void * data)
     while (list_item != NULL) {
         new_list_item = (struct lib_list_item_s *) malloc(sizeof(struct lib_list_item_s));
         new_list_item->var = var_copy(list->first->var);
-        new_list_item->prev = new_list_item_prev;
         new_list->last = new_list_item;
         new_list_item_prev = new_list_item;
         list_item = list_item->next;
@@ -382,6 +378,7 @@ int lib_list_str_split (struct capi_s * capi) {
                 strncpy(new_string, substr_start, len);
                 new_string[len] = '\0';
                 var = var_create(TYPE_STRING, new_string);
+                free(new_string);
                 lib_list_api_append(list, var);
                 n = needle;
                 substr_start = h;
@@ -394,6 +391,7 @@ int lib_list_str_split (struct capi_s * capi) {
             strncpy(new_string, substr_start, len);
             new_string[len] = '\0';
             var = var_create(TYPE_STRING, new_string);
+            free(new_string);
             lib_list_api_append(list, var);
         }
         

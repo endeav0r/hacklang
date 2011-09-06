@@ -10,7 +10,6 @@
 
 struct lib_list_item_s {
     struct var_s * var;
-    struct lib_list_item_s * prev;
     struct lib_list_item_s * next;
 };
 
